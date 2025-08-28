@@ -61,7 +61,7 @@ void InternalLratTracer::lrat_add_clause (const uint64_t id, bool redundant,
   int glue = 0;
   if (export_clause) {
     glue = internal->last_glue;
-    if (!glue || glue > clause.size ()) glue = clause.size ();
+    if (!glue || (unsigned int) glue > clause.size ()) glue = clause.size ();
   }
   internal->last_glue = 0;
 

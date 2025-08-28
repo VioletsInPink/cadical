@@ -76,7 +76,7 @@ inline void LratTracer::put_binary_id (int64_t id) {
 
 /*------------------------------------------------------------------------*/
 
-void LratTracer::lrat_add_clause (uint64_t id, bool redundant,
+void LratTracer::lrat_add_clause (uint64_t id, bool,
                                   const vector<int> &clause,
                                   const vector<uint64_t> &chain) {
 
