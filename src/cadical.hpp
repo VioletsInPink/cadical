@@ -794,8 +794,11 @@ public:
   //
   bool trace_proof (FILE *file, const char *name); // Write DRAT proof.
   bool trace_proof (const char *path);             // Open & write proof.
-// Forward LRAT proof information to custom callbacks which handle the checking.
-  void trace_proof_internally (LratCallbackProduceClause cbProduce, LratCallbackImportClause cbImport, LratCallbackDeleteClauses cbDelete);
+  // Forward LRAT/LIDRUP proof information to custom callbacks which handle the checking.
+  // Note that this only concerns the bits we cannot already extract from the solver's
+  // default interface (like failed assumptions or found models).
+  void trace_proof_internally (LratCallbackProduceClause cbProduce, LratCallbackImportClause cbImport,
+    LratCallbackDeleteClauses cbDelete, LratCallbackConcludeUnsat);
 
   void profile_to_file (const char *path);
 

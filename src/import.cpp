@@ -55,7 +55,7 @@ void CaDiCaL::Internal::learn_imported_unit_clause (uint64_t id, int lit) {
 
   assert (!unsat);
   const unsigned uidx = vlit (lit);
-  unit_clauses[uidx] = id;
+  if (lrat || frat) unit_clauses (uidx) = id;
   register_lrat_id_of_unit_ilit (id, lit);
   mark_fixed (lit);
 

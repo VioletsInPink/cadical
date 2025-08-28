@@ -514,7 +514,7 @@ void Internal::add_new_original_clause (uint64_t id) {
       bool clause_redundancy = from_propagator && ext_clause_forgettable;
       Clause *c = new_clause (clause_redundancy, glue);
       c->id = new_id;
-      backtrack_last_lrat_id ();
+      //backtrack_last_lrat_id (); // TODO needed?
       watch_clause (c);
       clause.clear ();
       original.clear ();
@@ -595,9 +595,9 @@ Clause *Internal::new_clause_as (const Clause *orig) {
 Clause *Internal::new_resolved_irredundant_clause () {
   external->check_learned_clause ();
   if (proof) {
-    proof->add_derived_clause (clause_id + 1, false, clause, lrat_chain);
+    proof->add_derived_clause (next_lrat_id (), false, clause, lrat_chain);
   }
-  Clause *res = new_clause (false);
+  Clause *res = new_clause (false, 0, false, clause_id);
   assert (!watching ());
   return res;
 }

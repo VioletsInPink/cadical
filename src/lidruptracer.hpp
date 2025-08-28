@@ -1,6 +1,13 @@
 #ifndef _lidruptracer_h_INCLUDED
 #define _lidruptracer_h_INCLUDED
 
+#include "file.hpp"
+#include "onthefly_checking.hpp"
+#include "tracer.hpp"
+
+#include <vector>
+using namespace std;
+
 class FileTracer;
 
 namespace CaDiCaL {
@@ -31,6 +38,13 @@ class LidrupTracer : public FileTracer {
   vector<uint64_t> batch_weaken;
   vector<uint64_t> batch_delete;
   vector<uint64_t> batch_restore;
+
+  bool callbacks {false};
+  LratCallbackProduceClause cb_produce;
+  LratCallbackImportClause cb_import;
+  LratCallbackDeleteClauses cb_delete;
+  LratCallbackConcludeUnsat cb_conclude;
+  vector<uint64_t> helpers_to_delete;
 
   static const unsigned num_nonces = 4;
 
@@ -75,11 +89,16 @@ class LidrupTracer : public FileTracer {
 
 public:
   LidrupTracer (Internal *, File *file, bool);
+  LidrupTracer (Internal *, LratCallbackProduceClause cb_produce, LratCallbackImportClause cb_import,
+    LratCallbackDeleteClauses cb_delete, LratCallbackConcludeUnsat cb_conclude);
+
   ~LidrupTracer ();
+
 
   // proof section:
   void add_derived_clause (uint64_t, bool, const vector<int> &,
                            const vector<uint64_t> &) override;
+  void add_original_clause_with_signature (uint64_t id, const vector<int> & clause, const vector<uint8_t>& signature) override;
   void add_assumption_clause (uint64_t, const vector<int> &,
                               const vector<uint64_t> &) override;
   void weaken_minus (uint64_t, const vector<int> &) override;

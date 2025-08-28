@@ -40,8 +40,7 @@ void InternalLratTracer::lrat_add_clause (const uint64_t id, bool redundant,
     size_t nbDeleted = 0;
     for (size_t start = 0; start < delete_ids.size (); start += step) {
       size_t end = std::min(start+step, delete_ids.size ());
-      bool ok = cb_delete (delete_ids.data () + start, end-start);
-      if (!ok) abort ();
+      cb_delete (delete_ids.data () + start, end-start);
       nbDeleted += end-start;
     }
     if (nbDeleted != delete_ids.size ()) abort();
@@ -66,8 +65,7 @@ void InternalLratTracer::lrat_add_clause (const uint64_t id, bool redundant,
   }
   internal->last_glue = 0;
 
-  bool ok = cb_produce (id, clause.data (), clause.size (), chain.data (), chain.size (), glue);
-  if (!ok) abort ();
+  cb_produce (id, clause.data (), clause.size (), chain.data (), chain.size (), glue);
   internal->stats.produced_cls++;
 }
 
@@ -80,8 +78,7 @@ void InternalLratTracer::lrat_delete_clause (uint64_t id) {
 
 void InternalLratTracer::add_original_clause_with_signature (uint64_t id,
     const vector<int> & clause, const std::vector<uint8_t>& signature) {
-  bool ok = cb_import (id, clause.data (), clause.size (), signature.data (), signature.size ());
-  if (!ok) abort();
+  cb_import (id, clause.data (), clause.size (), signature.data (), signature.size ());
 }
 
 void InternalLratTracer::add_derived_clause (uint64_t id, bool redundant,

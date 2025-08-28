@@ -1,5 +1,6 @@
 #include "internal.hpp"
 #include "internallrattracer.hpp"
+#include "lidruptracer.hpp"
 #include "onthefly_checking.hpp"
 
 /*------------------------------------------------------------------------*/
@@ -1170,13 +1171,14 @@ bool Solver::trace_proof (const char *path) {
 }
 
 void Solver::trace_proof_internally(
-  LratCallbackProduceClause cbProduce, LratCallbackImportClause cbImport, LratCallbackDeleteClauses cbDelete
+  LratCallbackProduceClause cbProduce, LratCallbackImportClause cbImport,
+  LratCallbackDeleteClauses cbDelete, LratCallbackConcludeUnsat cbConclude
 ) {
   REQUIRE_VALID_STATE ();
   REQUIRE (
       state () == CONFIGURING,
       "can only start proof tracing right after initialization");
-  FileTracer *ft = new InternalLratTracer (internal, cbProduce, cbImport, cbDelete);
+  FileTracer *ft = new LidrupTracer (internal, cbProduce, cbImport, cbDelete, cbConclude);
   connect_proof_tracer (ft, true);
   if (internal->opts.lrat) {
     internal->reserve_ids (internal->opts.lratorigclscount);

@@ -15,7 +15,7 @@ Arguments:
     - int : number of clause hints
     - int : glue of the learnt clause, or 0 if it is irrelevant and the clause should NOT be exported
 */
-typedef std::function<bool(unsigned long, const int*, int, const unsigned long*, int, int)> LratCallbackProduceClause;
+typedef std::function<void(unsigned long, const int*, int, const unsigned long*, int, int)> LratCallbackProduceClause;
 
 /*
 Add a clause as an axiom (i.e., as if it were an original clause of the problem)
@@ -27,7 +27,7 @@ Arguments:
     - const uint8_t* : clause signature to validate
     - int : size of the signature (in bytes)
 */
-typedef std::function<bool(unsigned long, const int*, int, const uint8_t*, int)> LratCallbackImportClause;
+typedef std::function<void(unsigned long, const int*, int, const uint8_t*, int)> LratCallbackImportClause;
 
 /*
 Delete a number of clauses, specified via LRAT IDs.
@@ -35,4 +35,6 @@ Arguments:
     - const unsigned long* : clause IDs
     - int : number of clause IDs
 */
-typedef std::function<bool(const unsigned long*, int)> LratCallbackDeleteClauses;
+typedef std::function<void(const unsigned long*, int)> LratCallbackDeleteClauses;
+
+typedef std::function<void(unsigned long)> LratCallbackConcludeUnsat;

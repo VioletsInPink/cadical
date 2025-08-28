@@ -1490,30 +1490,26 @@ struct Internal {
   std::ofstream dbg_ofs_import_simplifications;
 
   uint64_t next_lrat_id () {
-    prev_clause_id = clause_id;
-    assert (clause_id >= (uint64_t) opts.lratorigclscount);
-    if (clause_id == (uint64_t) opts.lratorigclscount) {
-      // Here we switch from original to redundant (derived) clauses.
+    if (prev_clause_id == 0) {
+      prev_clause_id = opts.lratorigclscount;
       // We need to align the clause ID at the correct remainder mod p (= #solvers),
-      // with lratsolverid being in [0, p). Since the clause ID is increased by
-      // #solvers below before returning it, we are leaving a gap of (#solvers -1)
-      // in the assigned IDs, but that's not a problem and it allows for the
-      // plain and simple invariant that each ID i was produced by solver j
-      // if and only if (i - o) mod p = j.
-      clause_id += opts.lratsolverid;
+      // with lratsolverid being in [0, p).
+      while (prev_clause_id % opts.lratsolvercount != (unsigned long) opts.lratsolverid)
+        prev_clause_id++;
       // If the provided options indicate that there are (possibly) X prior solvers
       // which were using the same solver ID for producing clauses, then add an according
       // offset to your clause ID domain (while preserving your remainder mod p).
       // The offset is chosen in such a way that every solver can assign 10'000
       // clauses per second for 10'000 seconds before adjacent intervals collide.
-      clause_id += ((uint64_t) opts.lratskippedepochs) * opts.lratsolvercount * 1e8;
+      prev_clause_id += ((uint64_t) opts.lratskippedepochs) * opts.lratsolvercount * 1e8;
+    } else {
+      prev_clause_id += opts.lratsolvercount;
     }
-    // Go to next clause ID
-    clause_id += opts.lratsolvercount;
+    clause_id = prev_clause_id + opts.lratsolvercount;
     return clause_id;
   }
   bool is_locally_produced_lrat_id (uint64_t id) {
-    return (id - opts.lratorigclscount) % opts.lratsolvercount == (uint64_t) opts.lratsolverid;
+    return id % opts.lratsolvercount == (uint64_t) opts.lratsolverid;
   }
   void backtrack_last_lrat_id () {
     clause_id = prev_clause_id;

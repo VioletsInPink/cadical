@@ -114,7 +114,7 @@ LOGOPT( logsort,           0,  0,  1,0,0,0, "sort logged clauses") \
 OPTION( lrat,              0,  0,  1,0,0,1, "use LRAT proof format") \
 OPTION( lratdebug,         0,  0,  1,0,0,1, "output debugging files for simplified external clauses") \
 OPTION( lratdeletelines,   1,  0,  1,0,0,1, "output LRAT deletion lines") \
-OPTION( lratorigclscount,  0,  0,2e9,0,0,1, "number of original clauses in the problem") \
+OPTION( lratorigclscount,  0,  0,INT32_MAX,0,0,1, "number of original clauses in the problem") \
 OPTION( lratskippedepochs, 0,  0,2e9,0,0,1, "skip this many blocks of potential ID domains") \
 OPTION( lratsolvercount,   1,  0,2e9,0,0,1, "number of solvers in the computation") \
 OPTION( lratsolverid,      0,  0,2e9,0,0,1, "internal ID of this particular solver") \
