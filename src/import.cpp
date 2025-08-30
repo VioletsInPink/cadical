@@ -55,8 +55,10 @@ void CaDiCaL::Internal::learn_imported_unit_clause (uint64_t id, int lit) {
 
   assert (!unsat);
   const unsigned uidx = vlit (lit);
-  if (lrat || frat) unit_clauses (uidx) = id;
-  register_lrat_id_of_unit_ilit (id, lit);
+  if (lrat || frat) {
+    unit_clauses (uidx) = id;
+    register_lrat_id_of_unit_ilit (id, lit);
+  }
   mark_fixed (lit);
 
   const signed char tmp = sign (lit);
@@ -67,10 +69,7 @@ void CaDiCaL::Internal::learn_imported_unit_clause (uint64_t id, int lit) {
     phases.saved[idx] = tmp; // phase saving during search
   trail.push_back (lit);
 #ifdef LOGGING
-  if (!lit_level)
-    LOG ("root-level unit assign %d @ 0", lit);
-  else
-    LOG (reason, "search assign %d @ %d", lit, lit_level);
+  LOG ("root-level unit assign %d @ 0", lit);
 #endif
 
   if (watching ()) {
@@ -274,7 +273,17 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
     add_clause_to_proof (impclsid);
     lrat_chain.clear ();
   }
-  Clause * res = new_clause (true, glue, reducedSize, impclsid);
+
+  // This awkward bit of code ensures that the imported clause will have
+  // the imported clause ID, and that the internal ID counter is then reset
+  // back to its former value afterwards.
+  auto prevId = clause_id;
+  clause_id = impclsid;
+  backtrack_last_lrat_id ();
+  last_glue = glue;
+  Clause * res = new_clause (true);
+  clause_id = prevId;
+
   clause.clear ();
   assert (watching ());
   watch_clause (res);

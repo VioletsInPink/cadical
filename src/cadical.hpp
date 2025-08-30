@@ -798,7 +798,7 @@ public:
   // Note that this only concerns the bits we cannot already extract from the solver's
   // default interface (like failed assumptions or found models).
   void trace_proof_internally (LratCallbackProduceClause cbProduce, LratCallbackImportClause cbImport,
-    LratCallbackDeleteClauses cbDelete, LratCallbackConcludeUnsat);
+    LratCallbackDeleteClauses cbDelete, LratCallbackConcludeUnsat cbConclude);
 
   void profile_to_file (const char *path);
 

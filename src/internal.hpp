@@ -570,7 +570,7 @@ struct Internal {
   // Managing clauses in 'clause.cpp'.  Without explicit 'Clause' argument
   // these functions work on the global temporary 'clause'.
   //
-  Clause* new_clause (bool red, int glue = 0, bool doExport = true, uint64_t id = 0);
+  Clause *new_clause (bool red, int glue = 0);
   void promote_clause (Clause *, int new_glue);
   size_t shrink_clause (Clause *, int new_size);
   void minimize_sort_clause ();
@@ -1486,33 +1486,32 @@ struct Internal {
   //
   void warning (const char *, ...) CADICAL_ATTRIBUTE_FORMAT (2, 3);
 
-  uint64_t prev_clause_id {0};
   std::ofstream dbg_ofs_import_simplifications;
 
   uint64_t next_lrat_id () {
-    if (prev_clause_id == 0) {
-      prev_clause_id = opts.lratorigclscount;
+    if (clause_id <= (unsigned long) opts.lratorigclscount) {
+      clause_id = 1UL + opts.lratorigclscount;
       // We need to align the clause ID at the correct remainder mod p (= #solvers),
       // with lratsolverid being in [0, p).
-      while (prev_clause_id % opts.lratsolvercount != (unsigned long) opts.lratsolverid)
-        prev_clause_id++;
+      while (clause_id % opts.lratsolvercount != (unsigned long) opts.lratsolverid)
+        clause_id++;
       // If the provided options indicate that there are (possibly) X prior solvers
       // which were using the same solver ID for producing clauses, then add an according
       // offset to your clause ID domain (while preserving your remainder mod p).
       // The offset is chosen in such a way that every solver can assign 10'000
       // clauses per second for 10'000 seconds before adjacent intervals collide.
-      prev_clause_id += ((uint64_t) opts.lratskippedepochs) * opts.lratsolvercount * 1e8;
+      clause_id += ((uint64_t) opts.lratskippedepochs) * opts.lratsolvercount * 1e8;
     } else {
-      prev_clause_id += opts.lratsolvercount;
+      clause_id += opts.lratsolvercount;
     }
-    clause_id = prev_clause_id + opts.lratsolvercount;
+    if (clause_id >= (~0UL - (1UL<<32) - (1UL<<31))) abort ();
     return clause_id;
   }
   bool is_locally_produced_lrat_id (uint64_t id) {
     return id % opts.lratsolvercount == (uint64_t) opts.lratsolverid;
   }
   void backtrack_last_lrat_id () {
-    clause_id = prev_clause_id;
+    clause_id -= opts.lratsolvercount;
   }
 
   void register_lrat_id_of_unit_elit (uint64_t id, int elit) {

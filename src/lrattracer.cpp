@@ -109,12 +109,6 @@ void LratTracer::lrat_add_clause (uint64_t id, bool,
   }
   latest_id = id;
 
-  if (clause.size () == 1) {
-    // Remember the ID of this unit clause as an *external* literal
-    // so that internal variable domain compacting does not destroy the mapping.
-    internal->register_lrat_id_of_unit_elit (id, clause[0]);
-  }
-
   if (binary)
     file->put ('a'), put_binary_id (id);
   else

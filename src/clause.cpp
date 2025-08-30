@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include <cstdio>
 
 namespace CaDiCaL {
 
@@ -73,7 +74,7 @@ void Internal::mark_added (Clause *c) {
 
 /*------------------------------------------------------------------------*/
 
-Clause * Internal::new_clause (bool red, int glue, bool doExport, uint64_t id) {
+Clause *Internal::new_clause (bool red, int glue) {
 
   assert (clause.size () <= (size_t) INT_MAX);
   const int size = (int) clause.size ();
@@ -96,7 +97,7 @@ Clause * Internal::new_clause (bool red, int glue, bool doExport, uint64_t id) {
   Clause *c = (Clause *) new char[bytes];
   DeferDeleteArray<char> clause_delete ((char *) c);
 
-  c->id = id == 0 ? next_lrat_id () : id;
+  c->id = next_lrat_id ();
 
   c->conditioned = false;
   c->covered = false;
@@ -125,7 +126,7 @@ Clause * Internal::new_clause (bool red, int glue, bool doExport, uint64_t id) {
 
   // export redundant clause
   if (red) {
-    if (!opts.signsharedcls && doExport)
+    if (!opts.signsharedcls)
       external->export_learned_internal_large_clause (c->id, clause, glue);
     last_glue = glue;
   }
@@ -514,7 +515,7 @@ void Internal::add_new_original_clause (uint64_t id) {
       bool clause_redundancy = from_propagator && ext_clause_forgettable;
       Clause *c = new_clause (clause_redundancy, glue);
       c->id = new_id;
-      //backtrack_last_lrat_id (); // TODO needed?
+      backtrack_last_lrat_id ();
       watch_clause (c);
       clause.clear ();
       original.clear ();
@@ -596,8 +597,9 @@ Clause *Internal::new_resolved_irredundant_clause () {
   external->check_learned_clause ();
   if (proof) {
     proof->add_derived_clause (next_lrat_id (), false, clause, lrat_chain);
+    backtrack_last_lrat_id ();
   }
-  Clause *res = new_clause (false, 0, false, clause_id);
+  Clause *res = new_clause (false);
   assert (!watching ());
   return res;
 }
