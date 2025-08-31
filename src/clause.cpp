@@ -346,10 +346,8 @@ void Internal::assign_original_unit (uint64_t id, int lit) {
   trail.push_back (lit);
   num_assigned++;
   const unsigned uidx = vlit (lit);
-  if (lrat || frat) {
+  if (lrat || frat)
     unit_clauses (uidx) = id;
-    register_lrat_id_of_unit_ilit (id, lit);
-  }
   LOG ("original unit assign %d", lit);
   assert (num_assigned == trail.size () || level);
   mark_fixed (lit);
@@ -393,7 +391,14 @@ void Internal::add_new_original_clause (uint64_t id) {
     skip = true;
   } else {
     assert (clause.empty ());
-    for (const auto &lit : original) {
+    //for (const auto &lit : original) {
+    // We force that the correct clause ID is found for each simplifying unit
+    // by iterating over the internalized and the external clause simultaneously
+    // and using the external literals for the ID lookups.
+    assert(original.size () == external->eclause.size ());
+    for (uint32_t i = 0; i < original.size (); i++) {
+      int lit = original[i];
+      int elit = external->eclause[i];
       int tmp = marked (lit);
       if (tmp > 0) {
         LOG ("removing duplicated literal %d", lit);
@@ -406,13 +411,17 @@ void Internal::add_new_original_clause (uint64_t id) {
         if (tmp < 0) {
           LOG ("removing falsified literal %d", lit);
           if (lrat) {
-            int elit = externalize (lit);
-            unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
+            unsigned eidx = (-elit > 0) + 2u * (unsigned) abs (-elit);
+            /*
             if (!external->ext_units[eidx]) {
               uint64_t uid = (unit_clauses (vlit (-lit)));
               assert (uid);
               lrat_chain.push_back (uid);
             }
+            */
+            uint64_t uid = external->ext_units[eidx];
+            assert (uid);
+            lrat_chain.push_back (uid);
           }
         } else if (tmp > 0) {
           LOG ("satisfied since literal %d true", lit);
@@ -491,10 +500,8 @@ void Internal::add_new_original_clause (uint64_t id) {
         v.level = 0;
         v.reason = 0;
         const unsigned uidx = vlit (clause[0]);
-        if (lrat || frat) {
+        if (lrat || frat)
           unit_clauses (uidx) = new_id;
-          register_lrat_id_of_unit_ilit (new_id, clause[0]);
-        }
         mark_fixed (clause[0]);
       } else {
         const int lit = clause[0];

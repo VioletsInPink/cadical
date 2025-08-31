@@ -239,6 +239,8 @@ void LidrupTracer::add_original_clause_with_signature (uint64_t id,
       internal->opts.lratsolverid, internal->opts.lratsolvercount);
     abort();
   }
+  if (clause.size () == 1)
+    internal->register_lrat_id_of_unit_elit (id, clause[0]);
   cb_import (id, clause.data (), clause.size (), signature.data (), signature.size ());
 }
 
@@ -251,6 +253,8 @@ void LidrupTracer::lidrup_add_derived_clause (
         internal->opts.lratsolverid, internal->opts.lratsolvercount);
       abort();
     }
+    if (clause.size () == 1)
+      internal->register_lrat_id_of_unit_elit (id, clause[0]);
     cb_produce (id, clause.data (), clause.size (), chain.data (), chain.size (), clause.size ());
     return;
   }
@@ -286,6 +290,8 @@ void LidrupTracer::lidrup_add_derived_clause (
 void LidrupTracer::lidrup_add_original_clause (uint64_t id,
                                                const vector<int> &clause) {
   lidrup_batch_weaken_restore_and_delete ();
+  if (clause.size () == 1)
+    internal->register_lrat_id_of_unit_elit (id, clause[0]);
   if (callbacks) return;
   if (binary) {
     file->put ('i');

@@ -39,8 +39,9 @@ void CaDiCaL::Internal::add_clause_to_proof (uint64_t id) {
 // Adjusted and simplified version of Internal::search_assign (analyze.cpp).
 // We do not add anything to the proof and we do not re-export the unit
 // (both is done in try_import_unit, but only if a simplification was done).
-void CaDiCaL::Internal::learn_imported_unit_clause (uint64_t id, int lit) {
+void CaDiCaL::Internal::learn_imported_unit_clause (uint64_t id, int elit) {
 
+  int lit = internal->external->internalize (elit);
   const int idx = vidx (lit);
   assert (!val (idx));
   Var &v = var (idx);
@@ -55,10 +56,8 @@ void CaDiCaL::Internal::learn_imported_unit_clause (uint64_t id, int lit) {
 
   assert (!unsat);
   const unsigned uidx = vlit (lit);
-  if (lrat || frat) {
+  if (lrat || frat)
     unit_clauses (uidx) = id;
-    register_lrat_id_of_unit_ilit (id, lit);
-  }
   mark_fixed (lit);
 
   const signed char tmp = sign (lit);
@@ -134,7 +133,7 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
     std::vector<int> cls(1, elit);
     validate_clause_and_add_as_axiom(id, cls, sig);
   }
-  learn_imported_unit_clause (impclsid, ilit);
+  learn_imported_unit_clause (impclsid, elit);
 }
 
 void CaDiCaL::Internal::validate_clause_and_add_as_axiom (uint64_t id, std::vector<int>& cls, const std::vector<uint8_t>& sig) {
@@ -193,7 +192,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
       addClause = false; break;
     }
 
-    int ilit = external->internalize(elit);
+    int ilit = external->internalize (elit);
 
     auto& f = flags (ilit);
     if (f.eliminated () || f.substituted ()) {
@@ -216,7 +215,9 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
       reducedSize = true;
       if (lrat) {
         // Add the unit clause causing the shortening to the LRAT chain.
-        // We look up the *external* literal so that compacting does not
+
+        // We look up the *external* literal directly, without internalizing
+        // and re-externalizing (!), so that compacting does not
         // destroy the mapping.
         auto& unit_ids = external->ext_units;
         unsigned eidx = (-elit > 0) + 2u * (unsigned) abs (-elit);
@@ -224,6 +225,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
         uint64_t uid = unit_ids[eidx];
         assert (uid);
         lrat_chain.push_back (uid);
+        //printf("IMPCHK ERR clause %lu shortened by unit clause %lu (elit %i, ilit %i)\n", id, uid, -elit, -ilit);
       }
     } else {
       // Can treat literal normally.

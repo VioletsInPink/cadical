@@ -1520,12 +1520,8 @@ struct Internal {
     assert (eidx < unit_ids.size ());
     unit_ids[eidx] = id;
   }
-  void register_lrat_id_of_unit_ilit (uint64_t id, int ilit) {
-    int elit = externalize (ilit);
-    register_lrat_id_of_unit_elit (id, elit);
-  }
 
-  void learn_imported_unit_clause (uint64_t id, int lit);
+  void learn_imported_unit_clause (uint64_t id, int elit);
 };
 
 // Fatal internal error which leads to abort.
