@@ -392,9 +392,11 @@ void Internal::add_new_original_clause (uint64_t id) {
   } else {
     assert (clause.empty ());
     //for (const auto &lit : original) {
-    // We force that the correct clause ID is found for each simplifying unit
+    // XXX
+    // I now force that the correct clause ID is found for each simplifying unit
     // by iterating over the internalized and the external clause simultaneously
-    // and using the external literals for the ID lookups.
+    // and using the external literals for the ID lookups. Using internalized literals instead,
+    // I encountered errors, getting a wrong ID dependency in the proof in the end.
     assert(original.size () == external->eclause.size ());
     for (uint32_t i = 0; i < original.size (); i++) {
       int lit = original[i];
@@ -411,6 +413,10 @@ void Internal::add_new_original_clause (uint64_t id) {
         if (tmp < 0) {
           LOG ("removing falsified literal %d", lit);
           if (lrat) {
+            // XXX
+            // Why is this done with elit rather than with -elit in the original code?
+            // We want to look up the ID of the *negated* literal's unit, right?
+            // Or should both work? (So do we need to always write both polarities into ext_units?) 
             unsigned eidx = (-elit > 0) + 2u * (unsigned) abs (-elit);
             /*
             if (!external->ext_units[eidx]) {

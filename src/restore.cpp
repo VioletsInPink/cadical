@@ -142,6 +142,8 @@ void External::restore_clauses () {
     }
 
     // now copy the id of the clause
+    // XXX
+    // The previous version was buggy in copying the 2x32bits into a uint64_t.
     const uint32_t uintHigher = * (uint32_t*) &*p;
     const uint32_t uintAtLower = * (uint32_t*) &*(p + 1);
     const uint64_t id = (((uint64_t) uintHigher) << 32) + uintAtLower;

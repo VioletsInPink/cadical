@@ -239,6 +239,10 @@ void LidrupTracer::add_original_clause_with_signature (uint64_t id,
       internal->opts.lratsolverid, internal->opts.lratsolvercount);
     abort();
   }
+  // XXX
+  // Here and also in derive and import, I explicitly set each observed external unit
+  // in the ext_units vector. This ensures that all of them are present at any time,
+  // including during clause import.
   if (clause.size () == 1)
     internal->register_lrat_id_of_unit_elit (id, clause[0]);
   cb_import (id, clause.data (), clause.size (), signature.data (), signature.size ());
