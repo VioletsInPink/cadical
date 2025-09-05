@@ -25,7 +25,7 @@ void Internal::learn_empty_clause () {
   conflict_id = id;
   marked_failed = true;
   conclusion.push_back (id);
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 }
 
 void Internal::learn_unit_clause (int lit) {
@@ -325,7 +325,7 @@ inline void Internal::analyze_reason (int lit, Clause *reason, int &open,
   assert (reason != external_reason);
   bump_clause (reason);
   if (lrat)
-    lrat_chain.push_back (reason->id);
+    push_lrat_chain (reason->id);
   for (const auto &other : *reason)
     if (other != lit)
       analyze_literal (other, open, resolvent_size, antecedent_size);
@@ -783,7 +783,7 @@ Clause *Internal::on_the_fly_strengthen (Clause *new_conflict, int uip) {
       const auto id = *i;
       mini_chain.push_back (id);
     }
-    lrat_chain.clear (); // see if this is correct...
+    clear_lrat_chain (); // see if this is correct...
     clear_unit_analyzed_literals ();
     unit_chain.clear ();
   }
@@ -973,7 +973,7 @@ void Internal::analyze () {
     learn_empty_clause ();
     if (!opts.signsharedcls)
       external->export_learned_empty_clause ();
-    // lrat_chain.clear (); done in learn_empty_clause
+    // clear_lrat_chain (); done in learn_empty_clause
     STOP (analyze);
     return;
   }
@@ -1037,7 +1037,7 @@ void Internal::analyze () {
         LOG ("clause is actually unit %d, stopping", -uip);
         reverse (begin (mini_chain), end (mini_chain));
         for (auto id : mini_chain)
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
         mini_chain.clear ();
         clear_analyzed_levels ();
         assert (!opts.exteagerreasons);
@@ -1167,7 +1167,7 @@ void Internal::analyze () {
   if (lrat) {
     LOG (unit_chain, "unit chain: ");
     for (auto id : unit_chain)
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
     unit_chain.clear ();
     reverse (lrat_chain.begin (), lrat_chain.end ());
   }
@@ -1206,7 +1206,7 @@ void Internal::analyze () {
   clause.clear ();
   conflict = 0;
 
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   STOP (analyze);
 
   if (driving_clause && opts.eagersubsume)

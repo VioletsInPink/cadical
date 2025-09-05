@@ -224,7 +224,7 @@ void Internal::elim_on_the_fly_self_subsumption (Eliminator &eliminator,
   Clause *r = new_resolved_irredundant_clause ();
   elim_update_added_clause (eliminator, r);
   clause.clear ();
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   elim_update_removed_clause (eliminator, c, pivot);
   mark_garbage (c);
 }
@@ -310,7 +310,7 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
       const unsigned uidx = vlit (-lit);
       uint64_t id = unit_clauses (uidx);
       assert (id);
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
       continue;
     } else
       mark (lit), clause.push_back (lit), s++;
@@ -320,7 +320,7 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
     elim_update_removed_clause (eliminator, c, satisfied);
     mark_garbage (c);
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     clear_analyzed_literals ();
     unmark (c);
     return false;
@@ -351,7 +351,7 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
       const unsigned uidx = vlit (-lit);
       uint64_t id = unit_clauses (uidx);
       assert (id);
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
       continue;
     } else if ((tmp = marked (lit)) < 0) {
       tautological = lit;
@@ -367,8 +367,8 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
   const int64_t size = clause.size ();
 
   if (lrat) {
-    lrat_chain.push_back (d->id);
-    lrat_chain.push_back (c->id);
+    push_lrat_chain (d->id);
+    push_lrat_chain (c->id);
   }
 
   if (satisfied) {
@@ -376,7 +376,7 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
     elim_update_removed_clause (eliminator, d, satisfied);
     mark_garbage (d);
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     return false;
   }
 
@@ -386,7 +386,7 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
   if (tautological) {
     clause.clear ();
     LOG ("resolvent tautological on %d", tautological);
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     return false;
   }
 
@@ -457,7 +457,7 @@ bool Internal::resolve_clauses (Eliminator &eliminator, Clause *c,
   // TODO: either clear lrat_chain or check what we do from here on out.
   // if propagate_eagerly is true we want to clear lrat_chain, else leave it
   if (propagate_eagerly)
-    lrat_chain.clear ();
+    clear_lrat_chain ();
   return true;
 }
 
@@ -582,7 +582,7 @@ inline void Internal::elim_add_resolvents (Eliminator &eliminator,
       Clause *r = new_resolved_irredundant_clause ();
       elim_update_added_clause (eliminator, r);
       eliminator.enqueue (r);
-      lrat_chain.clear ();
+      clear_lrat_chain ();
       clause.clear ();
 #ifdef LOGGING
       resolvents++;

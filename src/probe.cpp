@@ -90,7 +90,7 @@ void Internal::get_probehbr_lrat (int lit, int uip) {
   assert (lrat_chain.empty ());
   assert (val (uip) < 0);
   lrat_chain = probehbr_chains[vlit (lit)][vlit (uip)];
-  lrat_chain.push_back (unit_clauses (vlit (-uip)));
+  push_lrat_chain (unit_clauses (vlit (-uip)));
 }
 
 // sets the corresponding probehbr_chain to what is currently stored in
@@ -103,7 +103,7 @@ void Internal::set_probehbr_lrat (int lit, int uip) {
   assert (lrat_chain.size ());
   assert (probehbr_chains[vlit (lit)][vlit (uip)].empty ());
   probehbr_chains[vlit (lit)][vlit (uip)] = lrat_chain;
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 }
 
 // compute lrat_chain for the part of the tree from lit to dom
@@ -136,9 +136,9 @@ void Internal::probe_dominator_lrat (int dom, Clause *reason) {
     const unsigned uidx = vlit (other);
     uint64_t id = unit_clauses (uidx);
     assert (id);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
   }
-  lrat_chain.push_back (reason->id);
+  push_lrat_chain (reason->id);
 }
 
 /*------------------------------------------------------------------------*/
@@ -264,7 +264,7 @@ inline int Internal::hyper_binary_resolve (Clause *reason) {
     if (red)
       c->hyper = true;
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     if (contained) {
       stats.hbrsubs++;
       LOG (reason, "subsumed original");
@@ -366,9 +366,9 @@ inline void Internal::probe_lrat_for_units (int lit) {
       continue;
     const unsigned uidx = vlit (val (reason_lit) * reason_lit);
     uint64_t id = unit_clauses (uidx);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
   }
-  lrat_chain.push_back (probe_reason->id);
+  push_lrat_chain (probe_reason->id);
 }
 
 /*------------------------------------------------------------------------*/
@@ -401,7 +401,7 @@ inline void Internal::probe_propagate2 () {
         probe_reason = w.clause;
         probe_lrat_for_units (w.blit);
         probe_assign (w.blit, -lit);
-        lrat_chain.clear ();
+        clear_lrat_chain ();
       }
     }
   }
@@ -474,7 +474,7 @@ bool Internal::probe_propagate () {
               probe_reason = w.clause;
               probe_lrat_for_units (other);
               probe_assign_unit (other);
-              lrat_chain.clear ();
+              clear_lrat_chain ();
             }
             probe_propagate2 ();
           } else
@@ -548,7 +548,7 @@ void Internal::failed_literal (int failed) {
 
   assert (!val (uip));
   probe_assign_unit (-uip);
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 
   if (!probe_propagate ())
     learn_empty_clause ();
@@ -568,7 +568,7 @@ void Internal::failed_literal (int failed) {
       LOG ("found unassigned failed parent %d", parent);
       get_probehbr_lrat (parent, uip); // this is computed during
       probe_assign_unit (-parent);     // propagation and can include
-      lrat_chain.clear ();             // multiple chains where only one
+      clear_lrat_chain ();             // multiple chains where only one
       if (!probe_propagate ())
         learn_empty_clause (); // is needed!
     }

@@ -175,11 +175,11 @@ void Internal::elim_backward_clause (Eliminator &eliminator, Clause *c) {
               const unsigned uidx = vlit (-lit);
               uint64_t id = unit_clauses (uidx);
               assert (id);
-              lrat_chain.push_back (id);
+              push_lrat_chain (id);
             }
             clear_analyzed_literals ();
-            lrat_chain.push_back (d->id);
-            lrat_chain.push_back (c->id);
+            push_lrat_chain (d->id);
+            push_lrat_chain (c->id);
           }
           if (satisfied) {
             assert (lrat_chain.empty ());
@@ -190,7 +190,7 @@ void Internal::elim_backward_clause (Eliminator &eliminator, Clause *c) {
             LOG (d, "unit %d through hyper unary resolution with", unit);
             assign_unit (unit);
             elim_propagate (eliminator, unit);
-            lrat_chain.clear ();
+            clear_lrat_chain ();
             break;
           } else if (occs (negated).size () <= (size_t) opts.elimocclim) {
             strengthen_clause (d, negated);
@@ -200,7 +200,7 @@ void Internal::elim_backward_clause (Eliminator &eliminator, Clause *c) {
             assert (negated != best);
             eliminator.enqueue (d);
           }
-          lrat_chain.clear ();
+          clear_lrat_chain ();
         }
       }
     }

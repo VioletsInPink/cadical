@@ -317,11 +317,11 @@ inline int Internal::try_to_subsume_clause (Clause *c,
     LOG (d, "strengthening");
     if (lrat) {
       assert (lrat_chain.empty ());
-      lrat_chain.push_back (c->id);
-      lrat_chain.push_back (d->id);
+      push_lrat_chain (c->id);
+      push_lrat_chain (d->id);
     }
     strengthen_clause (c, -flipped);
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     assert (likely_to_be_kept_clause (c));
     shrunken.push_back (c);
     return -1;

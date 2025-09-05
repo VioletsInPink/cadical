@@ -182,7 +182,7 @@ void External::add (int elit) {
       bool added = ext_flags[abs (elit)];
       if (id && !added) {
         ext_flags[abs (elit)] = true;
-        internal->lrat_chain.push_back (id);
+        push_lrat_chain (id);
       }
     }
   }

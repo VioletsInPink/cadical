@@ -283,6 +283,8 @@ struct Internal {
   Internal *internal; // proxy to 'this' in macros
   External *external; // proxy to 'external' buddy in 'Solver'
 
+  FILE* logfile;
+
   /*----------------------------------------------------------------------*/
 
   // Asynchronous termination flag written by 'terminate' and read by
@@ -1142,6 +1144,7 @@ struct Internal {
   void try_import_unit (uint64_t id, int elit, bool simplified, const std::vector<uint8_t>& sig);
   void add_clause_to_proof (uint64_t id);
   void validate_clause_and_add_as_axiom (uint64_t id, std::vector<int>& cls, const std::vector<uint8_t>& sig);
+  void delete_clause_in_proof (uint64_t id);
   uint64_t last_added_import_id {0};
   int last_glue {0};
   bool add_next_derived_clause_as_axiom {false};
@@ -1488,22 +1491,10 @@ struct Internal {
 
   std::ofstream dbg_ofs_import_simplifications;
 
+  bool creating_external_clause {false};
   uint64_t next_lrat_id () {
-    if (clause_id <= (unsigned long) opts.lratorigclscount) {
-      clause_id = 1UL + opts.lratorigclscount;
-      // We need to align the clause ID at the correct remainder mod p (= #solvers),
-      // with lratsolverid being in [0, p).
-      while (clause_id % opts.lratsolvercount != (unsigned long) opts.lratsolverid)
-        clause_id++;
-      // If the provided options indicate that there are (possibly) X prior solvers
-      // which were using the same solver ID for producing clauses, then add an according
-      // offset to your clause ID domain (while preserving your remainder mod p).
-      // The offset is chosen in such a way that every solver can assign 10'000
-      // clauses per second for 10'000 seconds before adjacent intervals collide.
-      clause_id += ((uint64_t) opts.lratskippedepochs) * opts.lratsolvercount * 1e8;
-    } else {
-      clause_id += opts.lratsolvercount;
-    }
+    clause_id += opts.lratsolvercount;
+    assert(creating_external_clause == !is_locally_produced_lrat_id(clause_id));
     if (clause_id >= (~0UL - (1UL<<32) - (1UL<<31))) abort ();
     return clause_id;
   }
@@ -1522,7 +1513,47 @@ struct Internal {
   }
 
   void learn_imported_unit_clause (uint64_t id, int elit);
+
+  // For debugging issues surrounding LRAT chains (activate the below macros)
+  FILE* out_lrat_chain {0};
+  const char* dbg_file;
+  int dbg_line;
+  inline void do_push_lrat_chain (uint64_t id) {
+    lrat_chain.push_back (id);
+    if (!out_lrat_chain) {
+      std::string path = "lratchain." + std::to_string(gettid());
+      out_lrat_chain = fopen(path.c_str(), "w");
+    }
+    fprintf (out_lrat_chain, "%s:%i:%lu ", dbg_file, dbg_line, id);
+  }
+  inline void do_clear_lrat_chain () {
+    if (lrat_chain.empty ()) return;
+    lrat_chain.clear ();
+    if (!out_lrat_chain) {
+      std::string path = "lratchain." + std::to_string(gettid());
+      out_lrat_chain = fopen(path.c_str(), "w");
+    }
+    fprintf (out_lrat_chain, "%s:%i\n", dbg_file, dbg_line);
+  }
 };
+
+// Replace the short definitions with the multi-line ones to get
+// comprehensive output on the locations where lrat_chain is manipulated,
+// written to a text file lratchain.<tid>.
+/*
+#define push_lrat_chain(ID) \
+{internal->dbg_file = __FILE__; \
+internal->dbg_line = __LINE__; \
+internal->do_push_lrat_chain(ID);};
+*/
+#define push_lrat_chain(ID) internal->lrat_chain.push_back (ID)
+/*
+#define clear_lrat_chain(...) \
+{internal->dbg_file = __FILE__; \
+internal->dbg_line = __LINE__; \
+internal->do_clear_lrat_chain();};
+*/
+#define clear_lrat_chain(...) internal->lrat_chain.clear ()
 
 // Fatal internal error which leads to abort.
 //

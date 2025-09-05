@@ -201,10 +201,10 @@ void Internal::transred () {
         LOG ("transred LRAT current lit %d next pos %d next neg %d", lit,
              next_pos, next_neg);
         if (lit == failed_lit || lit == next_pos) {
-          lrat_chain.push_back (mini_chain.back ());
+          push_lrat_chain (mini_chain.back ());
           next_pos = parents.back ();
         } else if (lit == -failed_lit || lit == next_neg) {
-          lrat_chain.push_back (mini_chain.back ());
+          push_lrat_chain (mini_chain.back ());
           next_neg = parents.back ();
         }
         parents.pop_back ();
@@ -234,7 +234,7 @@ void Internal::transred () {
         learn_empty_clause ();
       }
     }
-    lrat_chain.clear ();
+    clear_lrat_chain ();
   }
 
   last.transred.propagations = stats.propagations.search;

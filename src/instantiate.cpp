@@ -230,7 +230,7 @@ bool Internal::instantiate_candidate (int lit, Clause *c) {
     assert (inst_chain.size ());
     Clause *reason = inst_chain.back ();
     inst_chain.pop_back ();
-    lrat_chain.push_back (reason->id);
+    push_lrat_chain (reason->id);
     for (const auto &other : *reason) {
       Flags &f = flags (other);
       assert (!f.seen);
@@ -250,7 +250,7 @@ bool Internal::instantiate_candidate (int lit, Clause *c) {
       Flags &f = flags (other);
       if (f.seen) {
         Clause *reason = inst_chain.back ();
-        lrat_chain.push_back (reason->id);
+        push_lrat_chain (reason->id);
         for (const auto &other : *reason) {
           Flags &f = flags (other);
           if (f.seen)
@@ -267,7 +267,7 @@ bool Internal::instantiate_candidate (int lit, Clause *c) {
   // post processing step for lrat
   if (!ok && lrat) {
     if (flags (lit).seen)
-      lrat_chain.push_back (c->id);
+      push_lrat_chain (c->id);
     for (const auto &other : *c) {
       Flags &f = flags (other);
       f.seen = false;
@@ -281,7 +281,7 @@ bool Internal::instantiate_candidate (int lit, Clause *c) {
       const unsigned uidx = vlit (-other);
       uint64_t id = unit_clauses (uidx);
       assert (id);
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
     }
     clear_analyzed_literals ();
     reverse (lrat_chain.begin (), lrat_chain.end ());
@@ -299,7 +299,7 @@ bool Internal::instantiate_candidate (int lit, Clause *c) {
   LOG (lrat_chain, "instantiate proof chain");
   strengthen_clause (c, lit);
   watch_clause (c);
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   assert (c->size > 1);
   LOG ("instantiation succeeded");
   stats.instantiated++;

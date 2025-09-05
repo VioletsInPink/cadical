@@ -45,7 +45,7 @@ void Internal::assume_analyze_literal (int lit) {
     const unsigned uidx = vlit (-lit);
     uint64_t id = unit_clauses (uidx);
     assert (id);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
     return;
   }
   if (v.reason) {
@@ -54,7 +54,7 @@ void Internal::assume_analyze_literal (int lit) {
     for (const auto &other : *v.reason) {
       assume_analyze_literal (other);
     }
-    lrat_chain.push_back (v.reason->id);
+    push_lrat_chain (v.reason->id);
     return;
   }
   assert (assumed (-lit));
@@ -70,7 +70,7 @@ void Internal::assume_analyze_reason (int lit, Clause *reason) {
   for (const auto &other : *reason)
     if (other != lit)
       assume_analyze_literal (other);
-  lrat_chain.push_back (reason->id);
+  push_lrat_chain (reason->id);
 }
 
 // Find all failing assumptions starting from the one on the assumption
@@ -186,17 +186,17 @@ void Internal::failing () {
           assert ((size_t) eidx < external->ext_units.size ());
           const uint64_t id = external->ext_units[eidx];
           if (id) {
-            lrat_chain.push_back (id);
+            push_lrat_chain (id);
           } else {
             const unsigned uidx = vlit (-failed_unit);
             uint64_t id = unit_clauses (uidx);
             assert (id);
-            lrat_chain.push_back (id);
+            push_lrat_chain (id);
           }
         }
         proof->add_assumption_clause (next_lrat_id (), -efailed, lrat_chain);
         conclusion.push_back (clause_id);
-        lrat_chain.clear ();
+        clear_lrat_chain ();
       }
       goto DONE;
     }
@@ -325,7 +325,7 @@ void Internal::failing () {
         const unsigned uidx = vlit (lit);
         uint64_t id = unit_clauses (uidx);
         assert (id);
-        lrat_chain.push_back (id);
+        push_lrat_chain (id);
       }
       for (auto &lit : clause) {
         Flags &f = flags (lit);
@@ -362,7 +362,7 @@ void Internal::failing () {
         for (auto p : lrat_chain) {
           constraint_chains.back ().push_back (p);
         }
-        lrat_chain.clear ();
+        clear_lrat_chain ();
       }
       for (auto &lit : sum_constraints)
         clause.push_back (lit);
@@ -406,7 +406,7 @@ void Internal::failing () {
         if (proof) {
           if (lrat) {
             for (auto p : constraint_chains.back ()) {
-              lrat_chain.push_back (p);
+              push_lrat_chain (p);
             }
             constraint_chains.pop_back ();
             LOG (lrat_chain, "assume proof chain with constraints");
@@ -416,7 +416,7 @@ void Internal::failing () {
             eclause.push_back (externalize (lit));
           proof->add_assumption_clause (next_lrat_id (), eclause, lrat_chain);
           conclusion.push_back (clause_id);
-          lrat_chain.clear ();
+          clear_lrat_chain ();
         }
         clause.pop_back ();
       }
@@ -427,7 +427,7 @@ void Internal::failing () {
             assert ((size_t) eidx < external->ext_units.size ());
             const uint64_t id = external->ext_units[eidx];
             if (id) {
-              lrat_chain.push_back (id);
+              push_lrat_chain (id);
             } else {
               int lit = external->e2i[abs (elit)];
               if (elit < 0)
@@ -435,16 +435,16 @@ void Internal::failing () {
               const unsigned uidx = vlit (-lit);
               uint64_t id = unit_clauses (uidx);
               assert (id);
-              lrat_chain.push_back (id);
+              push_lrat_chain (id);
             }
           }
           proof->add_assumption_clause (next_lrat_id (), -elit, lrat_chain);
           conclusion.push_back (clause_id);
-          lrat_chain.clear ();
+          clear_lrat_chain ();
         }
       }
     }
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     clause.clear ();
   }
 

@@ -104,7 +104,7 @@ bool Internal::vivify_propagate () {
         else {
           build_chain_for_units (w.blit, w.clause, 0);
           vivify_assign (w.blit, w.clause);
-          lrat_chain.clear ();
+          clear_lrat_chain ();
         }
       }
     } else if (!conflict && propagated != trail.size ()) {
@@ -161,7 +161,7 @@ bool Internal::vivify_propagate () {
             assert (v < 0);
             vivify_chain_for_units (other, w.clause);
             vivify_assign (other, w.clause);
-            lrat_chain.clear ();
+            clear_lrat_chain ();
           } else {
             assert (u < 0);
             assert (v < 0);
@@ -569,7 +569,7 @@ void Internal::vivify_strengthen (Clause *c) {
     LOG (c, "vivification shrunken to unit %d", unit);
     assert (!val (unit));
     assign_unit (unit);
-    // lrat_chain.clear ();   done in search_assign
+    // clear_lrat_chain ();   done in search_assign
     stats.vivifyunits++;
 
     bool ok = propagate ();
@@ -614,7 +614,7 @@ void Internal::vivify_strengthen (Clause *c) {
   }
   clause.clear ();
   mark_garbage (c);
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 }
 
 /*------------------------------------------------------------------------*/
@@ -1019,7 +1019,7 @@ void Internal::vivify_clause (Vivifier &vivifier, Clause *c) {
   } else {
     LOG ("vivification failed");
   }
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 }
 
 // when we can strengthen clause c we have to build lrat.
@@ -1054,7 +1054,7 @@ void Internal::vivify_build_lrat (
       continue;
     }
     if (finished) {
-      lrat_chain.push_back (reason->id);
+      push_lrat_chain (reason->id);
       if (lit && reason) {
         Flags &f = flags (lit);
         f.seen = true;
@@ -1079,7 +1079,7 @@ void Internal::vivify_build_lrat (
             vlit (-other); // nevertheless we can use var (l)
         uint64_t id = unit_clauses (uidx); // as if l was still assigned
         assert (id);                       // because var is updated lazily
-        lrat_chain.push_back (id);
+        push_lrat_chain (id);
         f.seen = true;
         analyzed.push_back (other);
         continue;
@@ -1109,9 +1109,9 @@ inline void Internal::vivify_chain_for_units (int lit, Clause *reason) {
     assert (val (reason_lit));
     const unsigned uidx = vlit (val (reason_lit) * reason_lit);
     uint64_t id = unit_clauses (uidx);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
   }
-  lrat_chain.push_back (reason->id);
+  push_lrat_chain (reason->id);
 }
 
 /*------------------------------------------------------------------------*/

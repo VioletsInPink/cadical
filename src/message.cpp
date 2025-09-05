@@ -6,7 +6,7 @@ namespace CaDiCaL {
 #ifndef QUIET
 /*------------------------------------------------------------------------*/
 
-void Internal::print_prefix () { fputs (prefix.c_str (), stdout); }
+void Internal::print_prefix () { fputs (prefix.c_str (), logfile); }
 
 void Internal::vmessage (const char *fmt, va_list &ap) {
 #ifdef LOGGING
@@ -15,9 +15,9 @@ void Internal::vmessage (const char *fmt, va_list &ap) {
     if (opts.quiet)
       return;
   print_prefix ();
-  vprintf (fmt, ap);
-  fputc ('\n', stdout);
-  fflush (stdout);
+  vfprintf (logfile, fmt, ap);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 void Internal::message (const char *fmt, ...) {
@@ -34,8 +34,8 @@ void Internal::message () {
     if (opts.quiet)
       return;
   print_prefix ();
-  fputc ('\n', stdout);
-  fflush (stdout);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 /*------------------------------------------------------------------------*/
@@ -47,9 +47,9 @@ void Internal::vverbose (int level, const char *fmt, va_list &ap) {
     if (opts.quiet || level > opts.verbose)
       return;
   print_prefix ();
-  vprintf (fmt, ap);
-  fputc ('\n', stdout);
-  fflush (stdout);
+  vfprintf (logfile, fmt, ap);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 void Internal::verbose (int level, const char *fmt, ...) {
@@ -66,8 +66,8 @@ void Internal::verbose (int level) {
     if (opts.quiet || level > opts.verbose)
       return;
   print_prefix ();
-  fputc ('\n', stdout);
-  fflush (stdout);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 /*------------------------------------------------------------------------*/
@@ -82,15 +82,15 @@ void Internal::section (const char *title) {
     MSG ();
   print_prefix ();
   tout.blue ();
-  fputs ("--- [ ", stdout);
+  fputs ("--- [ ", logfile);
   tout.blue (true);
-  fputs (title, stdout);
+  fputs (title, logfile);
   tout.blue ();
-  fputs (" ] ", stdout);
+  fputs (" ] ", logfile);
   for (int i = strlen (title) + strlen (prefix.c_str ()) + 9; i < 78; i++)
-    fputc ('-', stdout);
+    fputc ('-', logfile);
   tout.normal ();
-  fputc ('\n', stdout);
+  fputc ('\n', logfile);
   MSG ();
 }
 
@@ -103,13 +103,13 @@ void Internal::phase (const char *phase, const char *fmt, ...) {
     if (opts.quiet || (!force_phase_messages && opts.verbose < 2))
       return;
   print_prefix ();
-  printf ("[%s] ", phase);
+  fprintf (logfile, "[%s] ", phase);
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (logfile, fmt, ap);
   va_end (ap);
-  fputc ('\n', stdout);
-  fflush (stdout);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 void Internal::phase (const char *phase, int64_t count, const char *fmt,
@@ -120,13 +120,13 @@ void Internal::phase (const char *phase, int64_t count, const char *fmt,
     if (opts.quiet || (!force_phase_messages && opts.verbose < 2))
       return;
   print_prefix ();
-  printf ("[%s-%" PRId64 "] ", phase, count);
+  fprintf (logfile, "[%s-%" PRId64 "] ", phase, count);
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (logfile, fmt, ap);
   va_end (ap);
-  fputc ('\n', stdout);
-  fflush (stdout);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 /*------------------------------------------------------------------------*/
@@ -134,43 +134,43 @@ void Internal::phase (const char *phase, int64_t count, const char *fmt,
 /*------------------------------------------------------------------------*/
 
 void Internal::warning (const char *fmt, ...) {
-  fflush (stdout);
+  fflush (logfile);
   terr.bold ();
-  fputs ("cadical: ", stderr);
+  fputs ("cadical: ", logfile);
   terr.red (1);
-  fputs ("warning:", stderr);
+  fputs ("warning:", logfile);
   terr.normal ();
-  fputc (' ', stderr);
+  fputc (' ', logfile);
   va_list ap;
   va_start (ap, fmt);
-  vfprintf (stderr, fmt, ap);
+  vfprintf (logfile, fmt, ap);
   va_end (ap);
-  fputc ('\n', stderr);
-  fflush (stderr);
+  fputc ('\n', logfile);
+  fflush (logfile);
 }
 
 /*------------------------------------------------------------------------*/
 
 void Internal::error_message_start () {
-  fflush (stdout);
+  fflush (logfile);
   terr.bold ();
-  fputs ("cadical: ", stderr);
+  fputs ("cadical: ", logfile);
   terr.red (1);
-  fputs ("error:", stderr);
+  fputs ("error:", logfile);
   terr.normal ();
-  fputc (' ', stderr);
+  fputc (' ', logfile);
 }
 
 void Internal::error_message_end () {
-  fputc ('\n', stderr);
-  fflush (stderr);
+  fputc ('\n', logfile);
+  fflush (logfile);
   // TODO add possibility to use call back instead.
   exit (1);
 }
 
 void Internal::verror (const char *fmt, va_list &ap) {
   error_message_start ();
-  vfprintf (stderr, fmt, ap);
+  vfprintf (logfile, fmt, ap);
   error_message_end ();
 }
 

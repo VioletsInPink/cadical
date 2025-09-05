@@ -143,7 +143,7 @@ void Internal::mark_binary_literals (Eliminator &eliminator, int first) {
           const unsigned uidx = vlit (-lit);
           uint64_t id = unit_clauses (uidx);
           assert (id);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
           // LOG ("gates added id %" PRId64, id);
         }
         for (auto &lit : *c) {
@@ -158,11 +158,11 @@ void Internal::mark_binary_literals (Eliminator &eliminator, int first) {
           const unsigned uidx = vlit (-lit);
           uint64_t id = unit_clauses (uidx);
           assert (id);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
           // LOG ("gates added id %" PRId64, id);
         }
-        lrat_chain.push_back (c->id);
-        lrat_chain.push_back (d->id);
+        push_lrat_chain (c->id);
+        push_lrat_chain (d->id);
         // LOG ("gates added id %" PRId64, c->id);
         // LOG ("gates added id %" PRId64, d->id);
         clear_analyzed_literals ();
@@ -245,7 +245,7 @@ void Internal::find_equivalence (Eliminator &eliminator, int pivot) {
           const unsigned uidx = vlit (-lit);
           uint64_t id = unit_clauses (uidx);
           assert (id);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
           // LOG ("gates added id %" PRId64, id);
         }
         for (auto &lit : *c) {
@@ -260,11 +260,11 @@ void Internal::find_equivalence (Eliminator &eliminator, int pivot) {
           const unsigned uidx = vlit (-lit);
           uint64_t id = unit_clauses (uidx);
           assert (id);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
           // LOG ("gates added id %" PRId64, id);
         }
-        lrat_chain.push_back (c->id);
-        lrat_chain.push_back (d->id);
+        push_lrat_chain (c->id);
+        push_lrat_chain (d->id);
         clear_analyzed_literals ();
         // LOG ("gates added id %" PRId64, c->id);
         // LOG ("gates added id %" PRId64, d->id);
@@ -382,20 +382,20 @@ void Internal::find_and_gate (Eliminator &eliminator, int pivot) {
     if (opts.log) {
       Logger::print_log_prefix (this);
       tout.magenta ();
-      printf ("found arity %u AND gate %d = ", arity, -pivot);
+      fprintf (logfile, "found arity %u AND gate %d = ", arity, -pivot);
       bool first = true;
       for (const auto &lit : *c) {
         if (lit == -pivot)
           continue;
         assert (lit != pivot);
         if (!first)
-          fputs (" & ", stdout);
-        printf ("%d", -lit);
+          fputs (" & ", logfile);
+        fprintf (logfile, "%d", -lit);
         first = false;
       }
-      fputc ('\n', stdout);
+      fputc ('\n', logfile);
       tout.normal ();
-      fflush (stdout);
+      fflush (logfile);
     }
 #endif
     stats.elimands++;

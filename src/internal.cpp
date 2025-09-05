@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include <unistd.h>
 
 namespace CaDiCaL {
 
@@ -45,6 +46,14 @@ Internal::Internal ()
   dummy_binary = (Clause *) new char[bytes];
   memset (dummy_binary, 0, bytes);
   dummy_binary->size = 2;
+
+  logfile = stdout;
+#ifdef LOGGING
+  if (opts.log) {
+    std::string logpath = "cadical.log." + std::to_string(gettid());
+    logfile = fopen(logpath.c_str(), "w");
+  }
+#endif
 }
 
 Internal::~Internal () {
@@ -73,6 +82,9 @@ Internal::~Internal () {
     vals -= vsize;
     delete[] vals;
   }
+#ifdef LOGGING
+  if (opts.log) fclose(logfile);
+#endif
 }
 
 /*------------------------------------------------------------------------*/
@@ -249,6 +261,16 @@ void Internal::reserve_ids (int number) {
   assert (number >= 0);
   assert (!clause_id && !reserved_ids && !original_id);
   clause_id = reserved_ids = number;
+  // We need to align the clause ID at the correct remainder mod p (= #solvers),
+  // with lratsolverid being in [0, p).
+  while (clause_id % opts.lratsolvercount != (unsigned long) opts.lratsolverid)
+    clause_id++;
+  // If the provided options indicate that there are (possibly) X prior solvers
+  // which were using the same solver ID for producing clauses, then add an according
+  // offset to your clause ID domain (while preserving your remainder mod p).
+  // The offset is chosen in such a way that every solver can assign 10'000
+  // clauses per second for 10'000 seconds before adjacent intervals collide.
+  clause_id += ((uint64_t) opts.lratskippedepochs) * opts.lratsolvercount * 1e8;
   if (proof)
     proof->begin_proof (reserved_ids);
 }

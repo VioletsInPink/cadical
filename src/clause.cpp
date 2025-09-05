@@ -402,13 +402,18 @@ void Internal::add_new_original_clause (uint64_t id) {
       int lit = original[i];
       int elit = external->eclause[i];
       int tmp = marked (lit);
-      if (tmp > 0) {
+      // XXX
+      // Only checking for "tmp > 0" actually leads to skipping literals which have
+      // distinct unit IDs, all of which need to be added to the chain. So we
+      // additionally check for uniqueness on the level of external literals.
+      if (tmp > 0 && external->ext_flags[abs (elit)]) {
         LOG ("removing duplicated literal %d", lit);
       } else if (tmp < 0) {
         LOG ("tautological since both %d and %d occur", -lit, lit);
         skip = true;
       } else {
         mark (lit);
+        external->ext_flags[abs (elit)] = true;
         tmp = fixed (lit);
         if (tmp < 0) {
           LOG ("removing falsified literal %d", lit);
@@ -422,12 +427,12 @@ void Internal::add_new_original_clause (uint64_t id) {
             if (!external->ext_units[eidx]) {
               uint64_t uid = (unit_clauses (vlit (-lit)));
               assert (uid);
-              lrat_chain.push_back (uid);
+              push_lrat_chain (uid);
             }
             */
             uint64_t uid = external->ext_units[eidx];
             assert (uid);
-            lrat_chain.push_back (uid);
+            push_lrat_chain (uid);
           }
         } else if (tmp > 0) {
           LOG ("satisfied since literal %d true", lit);
@@ -445,6 +450,8 @@ void Internal::add_new_original_clause (uint64_t id) {
     }
     for (const auto &lit : original)
       unmark (lit);
+    for (int elit : external->eclause)
+      external->ext_flags[abs(elit)] = false;
   }
   if (skip) {
     if (from_propagator) {
@@ -466,7 +473,7 @@ void Internal::add_new_original_clause (uint64_t id) {
       new_id = next_lrat_id ();
       if (proof) {
         if (lrat)
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
         proof->add_derived_clause (new_id, false, clause, lrat_chain);
         proof->delete_external_original_clause (id, false,
                                                 external->eclause);
@@ -482,7 +489,7 @@ void Internal::add_new_original_clause (uint64_t id) {
       }
     }
     external->eclause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     if (!size) {
       if (from_propagator)
         stats.ext_prop.elearn_conf++;
@@ -537,7 +544,7 @@ void Internal::add_new_original_clause (uint64_t id) {
     }
   }
   clause.clear ();
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 }
 
 // Add learned new clause during conflict analysis and watch it. Requires

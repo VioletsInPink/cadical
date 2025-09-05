@@ -492,7 +492,7 @@ void Internal::add_external_clause (int propagated_elit,
   // the analysis (like during failed assumptions)
   LOG (lrat_chain, "lrat chain before");
   std::vector<uint64_t> lrat_chain_ext = std::move (lrat_chain);
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   clause.clear ();
 
   // Read out the external lemma into original and simplify it into clause
@@ -632,7 +632,7 @@ void Internal::explain_external_propagations () {
       if (v.level && !real_level) {
         build_chain_for_units (lit, v.reason, 1);
         learn_unit_clause (lit);
-        lrat_chain.clear ();
+        clear_lrat_chain ();
         v.reason = 0;
       }
       assert (v.level >= real_level);
@@ -710,7 +710,7 @@ Clause *Internal::learn_external_reason_clause (int ilit,
 Clause *Internal::wrapped_learn_external_reason_clause (int ilit) {
   Clause *res;
   std::vector<uint64_t> chain_tmp{std::move (lrat_chain)};
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   if (clause.empty ()) {
     res = learn_external_reason_clause (ilit, 0, true);
   } else {

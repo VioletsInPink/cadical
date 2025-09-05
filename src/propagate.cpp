@@ -74,9 +74,9 @@ void Internal::build_chain_for_units (int lit, Clause *reason,
       continue;
     const unsigned uidx = vlit (val (reason_lit) * reason_lit);
     uint64_t id = unit_clauses (uidx);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
   }
-  lrat_chain.push_back (reason->id);
+  push_lrat_chain (reason->id);
 }
 
 // same code as above but reason is assumed to be conflict and lit is not
@@ -93,9 +93,9 @@ void Internal::build_chain_for_empty () {
     assert (val (lit) < 0);
     const unsigned uidx = vlit (-lit);
     uint64_t id = unit_clauses (uidx);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
   }
-  lrat_chain.push_back (conflict->id);
+  push_lrat_chain (conflict->id);
 }
 
 /*------------------------------------------------------------------------*/
@@ -165,7 +165,7 @@ inline void Internal::search_assign (int lit, Clause *reason) {
       __builtin_prefetch (&w, 0, 1);
     }
   }
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 }
 
 /*------------------------------------------------------------------------*/
@@ -289,7 +289,7 @@ bool Internal::propagate () {
         else {
           build_chain_for_units (w.blit, w.clause, 0);
           search_assign (w.blit, w.clause);
-          // lrat_chain.clear (); done in search_assign
+          // clear_lrat_chain (); done in search_assign
         }
 
       } else {
@@ -388,7 +388,7 @@ bool Internal::propagate () {
             //
             build_chain_for_units (other, w.clause, 0);
             search_assign (other, w.clause);
-            // lrat_chain.clear (); done in search_assign
+            // clear_lrat_chain (); done in search_assign
 
             // Similar code is in the implementation of the SAT'18 paper on
             // chronological backtracking but in our experience, this code

@@ -58,16 +58,16 @@ void Internal::decompose_conflicting_scc_lrat (DFS *dfs, vector<int> &scc) {
     analyzed.push_back (lit);
     decompose_analyze_binary_chain (dfs, lit);
     for (auto p = mini_chain.rbegin (); p != mini_chain.rend (); p++) {
-      lrat_chain.push_back (*p);
+      push_lrat_chain (*p);
     }
     /*
     if (back)
       for (auto p = mini_chain.rbegin (); p != mini_chain.rend (); p++) {
-        lrat_chain.push_back (*p);
+        push_lrat_chain (*p);
       }
     else
       for (auto p : mini_chain) {
-        lrat_chain.push_back (p);
+        push_lrat_chain (p);
       }
       */
     mini_chain.clear ();
@@ -90,7 +90,7 @@ void Internal::build_lrat_for_clause (
       const unsigned uidx = vlit (other);
       uint64_t id = unit_clauses (uidx);
       assert (id);
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
       continue;
     }
     assert (mini_chain.empty ());
@@ -114,12 +114,12 @@ void Internal::build_lrat_for_clause (
       mini_chain.push_back (id);
       break;
     }
-    if (invert)
+    if (invert) {
       for (auto p = mini_chain.rbegin (); p != mini_chain.rend (); p++)
-        lrat_chain.push_back (*p);
-    else
+        push_lrat_chain (*p);
+    } else
       for (auto p = mini_chain.begin (); p != mini_chain.end (); p++)
-        lrat_chain.push_back (*p);
+        push_lrat_chain (*p);
     mini_chain.clear ();
   }
   // clear_analyzed_literals ();
@@ -317,7 +317,7 @@ bool Internal::decompose_round () {
                     analyzed.push_back (-parent);
                     decompose_analyze_binary_chain (dfs, parent);
                     for (auto p : mini_chain)
-                      lrat_chain.push_back (p);
+                      push_lrat_chain (p);
                     mini_chain.clear ();
                   }
                   assign_unit (parent);
@@ -325,7 +325,7 @@ bool Internal::decompose_round () {
                     propagate ();
                   }
                   learn_empty_clause ();
-                  lrat_chain.clear ();
+                  clear_lrat_chain ();
                 } else {
                   if (abs (other) < abs (repr))
                     repr = other;
@@ -464,7 +464,7 @@ bool Internal::decompose_round () {
 
     decompose_ids[vlit (-idx)] = id1;
 
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     clause.clear ();
 
     assert (clause.empty ());
@@ -484,7 +484,7 @@ bool Internal::decompose_round () {
     decompose_ids[vlit (idx)] = id2;
 
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
   }
 
   vector<Clause *> postponed_garbage;
@@ -541,7 +541,7 @@ bool Internal::decompose_round () {
         const unsigned uidx = vlit (-lit);
         uint64_t id = unit_clauses (uidx);
         assert (id);
-        lrat_chain.push_back (id);
+        push_lrat_chain (id);
         continue;
       } else {
         const int other = reprs[vlit (lit)];
@@ -556,13 +556,13 @@ bool Internal::decompose_round () {
             const unsigned uidx = vlit (-other);
             uint64_t id = unit_clauses (uidx);
             assert (id);
-            lrat_chain.push_back (id);
+            push_lrat_chain (id);
           }
           if (other == lit)
             continue;
           uint64_t id = decompose_ids[vlit (-lit)];
           assert (id);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
           continue;
         } else if (tmp > 0)
           satisfied = true;
@@ -580,12 +580,12 @@ bool Internal::decompose_round () {
             continue;
           uint64_t id = decompose_ids[vlit (-lit)];
           assert (id);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
         }
       }
     }
     if (lrat)
-      lrat_chain.push_back (c->id);
+      push_lrat_chain (c->id);
     clear_analyzed_literals ();
     LOG (lrat_chain, "lrat_chain:");
     if (satisfied) {
@@ -654,7 +654,7 @@ bool Internal::decompose_round () {
       assert (marked (lit) > 0);
       unmark (lit);
     }
-    lrat_chain.clear ();
+    clear_lrat_chain ();
   }
 
   if (proof) {

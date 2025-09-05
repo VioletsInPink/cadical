@@ -94,7 +94,7 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
   if (external->marked (external->witness, elit)) {
     internal->stats.clauseimport.r_wit++;
     internal->stats.clauseimport.discarded++;
-    if (simplified && lrat) lrat_chain.clear ();
+    if (simplified && lrat) clear_lrat_chain ();
     return;
   }
   int ilit = external->internalize (elit);
@@ -103,14 +103,14 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
   if (f.eliminated () || f.substituted ()) {
     internal->stats.clauseimport.r_el++;
     internal->stats.clauseimport.discarded++;
-    if (simplified && lrat) lrat_chain.clear ();
+    if (simplified && lrat) clear_lrat_chain ();
     return;
   }
   // Do not import units which are already fixed
   if (f.fixed () || f.pure ()) {
     internal->stats.clauseimport.r_fx++;
     internal->stats.clauseimport.discarded++;
-    if (simplified && lrat) lrat_chain.clear ();
+    if (simplified && lrat) clear_lrat_chain ();
     return;
   }
   // Actually add the unit clause
@@ -119,10 +119,10 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
     // Clause was simplified: Need to add an LRAT derivation
     if (lrat) {
       assert(!lrat_chain.empty ());
-      lrat_chain.push_back (id); // add ID of the "original" incoming clause!
+      push_lrat_chain (id); // add ID of the "original" incoming clause!
       clause.resize (1, ilit);
       add_clause_to_proof (impclsid);
-      lrat_chain.clear ();
+      clear_lrat_chain ();
       clause.clear ();
     }
     // Re-export the clause in its simplified form
@@ -146,6 +146,13 @@ void CaDiCaL::Internal::validate_clause_and_add_as_axiom (uint64_t id, std::vect
     tracer->add_original_clause_with_signature (id, cls, sig);
   }
   stats.validated_incoming_cls++;
+}
+
+void CaDiCaL::Internal::delete_clause_in_proof (uint64_t id) {
+  if (!opts.signsharedcls) return;
+  for (auto tracer : proof->get_tracers ()) {
+    tracer->delete_clause(id, true, std::vector<int>());
+  }
 }
 
 // Attempt to import a single clause with external literals.
@@ -224,8 +231,8 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
         assert (eidx < unit_ids.size ());
         uint64_t uid = unit_ids[eidx];
         assert (uid);
-        lrat_chain.push_back (uid);
-        //printf("IMPCHK ERR clause %lu shortened by unit clause %lu (elit %i, ilit %i)\n", id, uid, -elit, -ilit);
+        push_lrat_chain (uid);
+        LOG("clause %lu shortened by unit clause %lu (elit %i, ilit %i)\n", id, uid, -elit, -ilit);
       }
     } else {
       // Can treat literal normally.
@@ -237,7 +244,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
   if (!addClause) {
     internal->stats.clauseimport.discarded++;
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     return;
   }
 
@@ -249,9 +256,10 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
     assert (reducedSize);
     if (lrat) {
       assert (!lrat_chain.empty ());
-      lrat_chain.push_back (id); // add ID of the "original" incoming clause!
+      push_lrat_chain (id); // add ID of the "original" incoming clause!
       add_clause_to_proof (next_lrat_id ());
-      lrat_chain.clear ();
+      clear_lrat_chain ();
+      delete_clause_in_proof (id);
     }
     internal->stats.clauseimport.r_fx++;
     internal->stats.clauseimport.discarded++;
@@ -265,15 +273,17 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
     clause.clear ();
     try_import_unit (id, elit, true, sig);
     clause.clear ();
+    delete_clause_in_proof (id);
     return;
   }
   // Handle clause of size >= 2 being learnt
   uint64_t impclsid = reducedSize ? next_lrat_id () : id;
   if (reducedSize && lrat) {
     assert (!lrat_chain.empty ());
-    lrat_chain.push_back (id); // add ID of the "original" incoming clause!
+    push_lrat_chain (id); // add ID of the "original" incoming clause!
     add_clause_to_proof (impclsid);
-    lrat_chain.clear ();
+    clear_lrat_chain ();
+    delete_clause_in_proof (id);
   }
 
   // This awkward bit of code ensures that the imported clause will have
@@ -283,8 +293,10 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
   clause_id = impclsid;
   backtrack_last_lrat_id ();
   last_glue = glue;
+  creating_external_clause = !reducedSize;
   Clause * res = new_clause (true);
   clause_id = prevId;
+  creating_external_clause = false;
 
   clause.clear ();
   assert (watching ());

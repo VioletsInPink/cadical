@@ -7,9 +7,9 @@ namespace CaDiCaL {
 void Logger::print_log_prefix (Internal *internal) {
   internal->print_prefix ();
   tout.magenta ();
-  fputs ("LOG ", stdout);
+  fputs ("LOG ", internal->logfile);
   tout.magenta (true);
-  printf ("%d ", internal->level);
+  fprintf (internal->logfile, "%d ", internal->level);
   tout.normal ();
 }
 
@@ -18,10 +18,10 @@ void Logger::log_empty_line (Internal *internal) {
   tout.magenta ();
   const int len = internal->prefix.size (), max = 78 - len;
   for (int i = 0; i < max; i++)
-    fputc ('-', stdout);
-  fputc ('\n', stdout);
+    fputc ('-', internal->logfile);
+  fputc ('\n', internal->logfile);
   tout.normal ();
-  fflush (stdout);
+  fflush (internal->logfile);
 }
 
 void Logger::log (Internal *internal, const char *fmt, ...) {
@@ -29,11 +29,11 @@ void Logger::log (Internal *internal, const char *fmt, ...) {
   tout.magenta ();
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (internal->logfile, fmt, ap);
   va_end (ap);
-  fputc ('\n', stdout);
+  fputc ('\n', internal->logfile);
   tout.normal ();
-  fflush (stdout);
+  fflush (internal->logfile);
 }
 
 // It is hard to factor out the common part between the two clause loggers,
@@ -47,16 +47,16 @@ void Logger::log (Internal *internal, const Clause *c, const char *fmt,
   tout.magenta ();
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (internal->logfile, fmt, ap);
   va_end (ap);
   if (c) {
     if (c->redundant)
-      printf (" glue %d redundant", c->glue);
+      fprintf (internal->logfile, " glue %d redundant", c->glue);
     else
-      printf (" irredundant");
-    printf (" size %d clause[%" PRId64 "]", c->size, c->id);
+      fprintf (internal->logfile, " irredundant");
+    fprintf (internal->logfile, " size %d clause[%" PRId64 "]", c->size, c->id);
     if (c->moved)
-      printf (" ... (moved)");
+      fprintf (internal->logfile, " ... (moved)");
     else {
       if (internal->opts.logsort) {
         vector<int> s;
@@ -64,19 +64,19 @@ void Logger::log (Internal *internal, const Clause *c, const char *fmt,
           s.push_back (lit);
         sort (s.begin (), s.end (), clause_lit_less_than ());
         for (const auto &lit : s)
-          printf (" %d", lit);
+          fprintf (internal->logfile, " %d", lit);
       } else {
         for (const auto &lit : *c)
-          printf (" %d", lit);
+          fprintf (internal->logfile, " %d", lit);
       }
     }
   } else if (internal->level)
-    printf (" decision");
+    fprintf (internal->logfile, " decision");
   else
-    printf (" unit");
-  fputc ('\n', stdout);
+    fprintf (internal->logfile, " unit");
+  fputc ('\n', internal->logfile);
   tout.normal ();
-  fflush (stdout);
+  fflush (internal->logfile);
 }
 
 // Same as above, but for the global clause 'c' (which is not a reason).
@@ -87,7 +87,7 @@ void Logger::log (Internal *internal, const vector<int> &c, const char *fmt,
   tout.magenta ();
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (internal->logfile, fmt, ap);
   va_end (ap);
   if (internal->opts.logsort) {
     vector<int> s;
@@ -95,14 +95,14 @@ void Logger::log (Internal *internal, const vector<int> &c, const char *fmt,
       s.push_back (lit);
     sort (s.begin (), s.end (), clause_lit_less_than ());
     for (const auto &lit : s)
-      printf (" %d", lit);
+      fprintf (internal->logfile, " %d", lit);
   } else {
     for (const auto &lit : c)
-      printf (" %d", lit);
+      fprintf (internal->logfile, " %d", lit);
   }
-  fputc ('\n', stdout);
+  fputc ('\n', internal->logfile);
   tout.normal ();
-  fflush (stdout);
+  fflush (internal->logfile);
 }
 
 // Now for 'restore_clause' to avoid copying (without logging).
@@ -115,7 +115,7 @@ void Logger::log (Internal *internal,
   tout.magenta ();
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (internal->logfile, fmt, ap);
   va_end (ap);
   if (internal->opts.logsort) {
     vector<int> s;
@@ -123,14 +123,14 @@ void Logger::log (Internal *internal,
       s.push_back (*p);
     sort (s.begin (), s.end (), clause_lit_less_than ());
     for (const auto &lit : s)
-      printf (" %d", lit);
+      fprintf (internal->logfile, " %d", lit);
   } else {
     for (auto p = begin; p != end; p++)
-      printf (" %d", *p);
+      fprintf (internal->logfile, " %d", *p);
   }
-  fputc ('\n', stdout);
+  fputc ('\n', internal->logfile);
   tout.normal ();
-  fflush (stdout);
+  fflush (internal->logfile);
 }
 
 // for LRAT proof chains
@@ -141,13 +141,13 @@ void Logger::log (Internal *internal, const vector<uint64_t> &c,
   tout.magenta ();
   va_list ap;
   va_start (ap, fmt);
-  vprintf (fmt, ap);
+  vfprintf (internal->logfile, fmt, ap);
   va_end (ap);
   for (const auto &id : c)
-    printf (" %" PRIu64, id);
-  fputc ('\n', stdout);
+    fprintf (internal->logfile, " %" PRIu64, id);
+  fputc ('\n', internal->logfile);
   tout.normal ();
-  fflush (stdout);
+  fflush (internal->logfile);
 }
 
 } // namespace CaDiCaL
