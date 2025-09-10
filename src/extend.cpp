@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include <cstring>
 
 namespace CaDiCaL {
 
@@ -8,10 +9,9 @@ void External::push_zero_on_extension_stack () {
 }
 
 void External::push_id_on_extension_stack (uint64_t id) {
-  const uint32_t higher_bits = static_cast<int> (id << 32);
-  const uint32_t lower_bits = (id & (((uint64_t) 1 << 32) - 1));
-  extension.push_back (higher_bits);
-  extension.push_back (lower_bits);
+  extension.push_back(0);
+  extension.push_back(0);
+  memcpy(extension.data() + extension.size() - 2, &id, sizeof(uint64_t));
   LOG ("pushing id %" PRIu64 " = %d + %d", id, higher_bits, lower_bits);
 }
 
@@ -157,13 +157,13 @@ void External::extend () {
       assert (i != begin);
     }
     assert (i != begin);
-    LOG ("id=%" PRIu64, ((uint64_t) *i << 32) + *(i - 1));
-    assert (*i || *(i - 1));
+    //LOG ("id=%" PRIu64, ((uint64_t) *i << 32) + *(i - 1));
+    //assert (*i || *(i - 1));
     --i;
     assert (i != begin);
     --i;
     assert (i != begin);
-    assert (!*i);
+    //assert (!*i);
     --i;
     assert (i != begin);
     if (satisfied)

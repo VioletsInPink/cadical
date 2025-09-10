@@ -1508,7 +1508,7 @@ struct Internal {
   }
 
   void register_lrat_id_of_unit_elit (uint64_t id, int elit) {
-    unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
+    unsigned eidx = (elit < 0) + 2u * (unsigned) abs (elit); // ID for unit elit
     assert (eidx < external->ext_units.size ());
     external->ext_units[eidx] = id;
   }

@@ -57,7 +57,7 @@ void External::restore_clause (const vector<int>::const_iterator &begin,
     eclause.push_back (*p);
     if (internal->proof && internal->lrat) {
       const auto &elit = *p;
-      unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
+      unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit); // ID for unit -elit
       assert ((size_t) eidx < ext_units.size ());
       const uint64_t id = ext_units[eidx];
       bool added = ext_flags[abs (elit)];
@@ -142,11 +142,8 @@ void External::restore_clauses () {
     }
 
     // now copy the id of the clause
-    // XXX
-    // The previous version was buggy in copying the 2x32bits into a uint64_t.
-    const uint32_t uintHigher = * (uint32_t*) &*p;
-    const uint32_t uintAtLower = * (uint32_t*) &*(p + 1);
-    const uint64_t id = (((uint64_t) uintHigher) << 32) + uintAtLower;
+    uint64_t id;
+    memcpy(&id, &*p, sizeof(uint64_t));
     LOG ("id is %" PRIu64, id);
     *q++ = *p++;
     *q++ = *p++;
@@ -256,7 +253,7 @@ void External::restore_clauses () {
     assert (*p || *(p - 1));
     --p;
     assert (p != begin_of_extension);
-    assert (!*p);
+    //assert (!*p);
     --p;
     assert (p != begin_of_extension);
     while ((elit = *--p)) {

@@ -391,12 +391,9 @@ void Internal::add_new_original_clause (uint64_t id) {
     skip = true;
   } else {
     assert (clause.empty ());
-    //for (const auto &lit : original) {
-    // XXX
-    // I now force that the correct clause ID is found for each simplifying unit
+    // Force that the correct clause ID is found for each simplifying unit
     // by iterating over the internalized and the external clause simultaneously
-    // and using the external literals for the ID lookups. Using internalized literals instead,
-    // I encountered errors, getting a wrong ID dependency in the proof in the end.
+    // and using the external literals for the ID lookups.
     if (original.size () != external->eclause.size ()) {
       std::string cstr;
       for (int l : ( original.size() > external->eclause.size() ? original : external->eclause ))
@@ -410,7 +407,6 @@ void Internal::add_new_original_clause (uint64_t id) {
       int lit = original[i];
       int elit = external->eclause[i];
       int tmp = marked (lit);
-      // XXX
       // Only checking for "tmp > 0" actually leads to skipping literals which have
       // distinct unit IDs, all of which need to be added to the chain. So we
       // additionally check for uniqueness on the level of external literals.
@@ -426,21 +422,12 @@ void Internal::add_new_original_clause (uint64_t id) {
         if (tmp < 0) {
           LOG ("removing falsified literal %d", lit);
           if (lrat) {
-            // XXX
-            // Why is this done with elit rather than with -elit in the original code?
-            // We want to look up the ID of the *negated* literal's unit, right?
-            // Or should both work? (So do we need to always write both polarities into ext_units?) 
-            unsigned eidx = (-elit > 0) + 2u * (unsigned) abs (-elit);
-            /*
+            unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);  // ID for unit -elit
             if (!external->ext_units[eidx]) {
               uint64_t uid = (unit_clauses (vlit (-lit)));
               assert (uid);
               push_lrat_chain (uid);
-            }
-            */
-            uint64_t uid = external->ext_units[eidx];
-            assert (uid);
-            push_lrat_chain (uid);
+            } // else: unit was already pushed to chain in External::add (int elit)!
           }
         } else if (tmp > 0) {
           LOG ("satisfied since literal %d true", lit);
