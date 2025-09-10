@@ -116,7 +116,7 @@ OPTION( lratdebug,         0,  0,  1,0,0,1, "output debugging files for simplifi
 OPTION( lratdeletelines,   1,  0,  1,0,0,1, "output LRAT deletion lines") \
 OPTION( lratorigclscount,  0,  0,INT32_MAX,0,0,1, "number of original clauses in the problem") \
 OPTION( lratskippedepochs, 0,  0,2e9,0,0,1, "skip this many blocks of potential ID domains") \
-OPTION( lratsolvercount,   1,  0,2e9,0,0,1, "number of solvers in the computation") \
+OPTION( lratsolvercount,   1,  1,2e9,0,0,1, "number of solvers in the computation") \
 OPTION( lratsolverid,      0,  0,2e9,0,0,1, "internal ID of this particular solver") \
 OPTION( lucky,             1,  0,  1,0,0,1, "search for lucky phases") \
 OPTION( minimize,          1,  0,  1,0,0,1, "minimize learned clauses") \

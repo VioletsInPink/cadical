@@ -101,6 +101,7 @@ extern "C" {
 #include "version.hpp"
 #include "vivify.hpp"
 #include "watch.hpp"
+#include "tsl/robin_set.h"
 
 /*------------------------------------------------------------------------*/
 
@@ -1148,6 +1149,7 @@ struct Internal {
   uint64_t last_added_import_id {0};
   int last_glue {0};
   bool add_next_derived_clause_as_axiom {false};
+  tsl::robin_set<uint64_t> active_imported_ids;
 
   // Add temporary clause as constraint.
   //
@@ -1492,9 +1494,9 @@ struct Internal {
   std::ofstream dbg_ofs_import_simplifications;
 
   bool creating_external_clause {false};
-  uint64_t next_lrat_id () {
+  inline uint64_t next_lrat_id () {
     clause_id += opts.lratsolvercount;
-    assert(creating_external_clause == !is_locally_produced_lrat_id(clause_id));
+    assert(!lrat || creating_external_clause == !is_locally_produced_lrat_id(clause_id));
     if (clause_id >= (~0UL - (1UL<<32) - (1UL<<31))) abort ();
     return clause_id;
   }
@@ -1506,10 +1508,9 @@ struct Internal {
   }
 
   void register_lrat_id_of_unit_elit (uint64_t id, int elit) {
-    auto& unit_ids = external->ext_units;
     unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
-    assert (eidx < unit_ids.size ());
-    unit_ids[eidx] = id;
+    assert (eidx < external->ext_units.size ());
+    external->ext_units[eidx] = id;
   }
 
   void learn_imported_unit_clause (uint64_t id, int elit);

@@ -234,6 +234,7 @@ void LidrupTracer::lidrup_add_restored_clause (uint64_t id) {
 
 void LidrupTracer::add_original_clause_with_signature (uint64_t id,
     const vector<int> & clause, const std::vector<uint8_t>& signature) {
+  lidrup_batch_weaken_restore_and_delete ();
   if (internal->is_locally_produced_lrat_id (id)) {
     printf("ERROR: Invalid imported ID %lu for solver %i out of %i!\n", id,
       internal->opts.lratsolverid, internal->opts.lratsolvercount);
@@ -245,6 +246,8 @@ void LidrupTracer::add_original_clause_with_signature (uint64_t id,
   // including during clause import.
   if (clause.size () == 1)
     internal->register_lrat_id_of_unit_elit (id, clause[0]);
+  // Also remember the imported ID so we can avoid to re-import it as long as it wasn't deleted.
+  internal->active_imported_ids.insert(id);
   cb_import (id, clause.data (), clause.size (), signature.data (), signature.size ());
 }
 
@@ -594,6 +597,8 @@ void LidrupTracer::delete_clause (uint64_t id, bool, const vector<int> &) {
     return;
   assert (imported_clause.empty ());
   LOG ("LIDRUP TRACER tracing deletion of clause[%" PRId64 "]", id);
+  if (!internal->is_locally_produced_lrat_id(id))
+    internal->active_imported_ids.erase(id);
   if (find_and_delete (id)) {
     assert (imported_clause.empty ());
     if (!batch_delete.empty () || !batch_restore.empty ())

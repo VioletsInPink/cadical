@@ -172,7 +172,7 @@ void External::add (int elit) {
 
   // The external literals of the new clause must be saved for later
   // when the proof is printed during add_original_lit (0)
-  if (elit && (internal->proof || forgettable)) {
+  if (elit) {
     eclause.push_back (elit);
     if (internal->lrat) {
       // actually find unit of -elit (flips elit < 0)
@@ -198,8 +198,7 @@ void External::add (int elit) {
   internal->add_original_lit (ilit);
 
   // Clean-up saved external literals once proof line is printed
-  if (!elit && (internal->proof || forgettable))
-    eclause.clear ();
+  if (!elit) eclause.clear ();
 }
 
 void External::assume (int elit) {
@@ -992,6 +991,7 @@ void External::export_learned_internal_large_clause (uint64_t id, const vector<i
   if (!learner) return;
   size_t size = clause.size ();
   assert (size <= (unsigned) INT_MAX);
+  assert (glue >= 1);
   assert (glue <= clause.size ());
   if (!learner->learning ((int) size)) return;
   LOG ("exporting learned clause of size %zu", size);

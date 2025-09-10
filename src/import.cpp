@@ -226,10 +226,9 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
         // We look up the *external* literal directly, without internalizing
         // and re-externalizing (!), so that compacting does not
         // destroy the mapping.
-        auto& unit_ids = external->ext_units;
         unsigned eidx = (-elit > 0) + 2u * (unsigned) abs (-elit);
-        assert (eidx < unit_ids.size ());
-        uint64_t uid = unit_ids[eidx];
+        assert (eidx < external->ext_units.size ());
+        uint64_t uid = external->ext_units[eidx];
         assert (uid);
         push_lrat_chain (uid);
         LOG("clause %lu shortened by unit clause %lu (elit %i, ilit %i)\n", id, uid, -elit, -ilit);
@@ -294,7 +293,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
   backtrack_last_lrat_id ();
   last_glue = glue;
   creating_external_clause = !reducedSize;
-  Clause * res = new_clause (true);
+  Clause * res = new_clause (true, glue);
   clause_id = prevId;
   creating_external_clause = false;
 
@@ -324,6 +323,7 @@ void CaDiCaL::Internal::import_redundant_clauses (int& res) {
     uint64_t id;
     int glue;
     auto cls = external->learnSource->getNextClause (id, glue, sig);
+    if (active_imported_ids.count(id)) continue;
     handle_incoming_clause (id, glue, cls, sig ? *sig : emptySig);
     stats.incoming_cls++;
 

@@ -397,6 +397,14 @@ void Internal::add_new_original_clause (uint64_t id) {
     // by iterating over the internalized and the external clause simultaneously
     // and using the external literals for the ID lookups. Using internalized literals instead,
     // I encountered errors, getting a wrong ID dependency in the proof in the end.
+    if (original.size () != external->eclause.size ()) {
+      std::string cstr;
+      for (int l : ( original.size() > external->eclause.size() ? original : external->eclause ))
+        cstr += " " + std::to_string(l);
+      printf("ERROR %lu != %lu!%s\n", original.size (), external->eclause.size (), cstr.c_str());
+      fflush(stdout);
+      abort();
+    }
     assert(original.size () == external->eclause.size ());
     for (uint32_t i = 0; i < original.size (); i++) {
       int lit = original[i];
