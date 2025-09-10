@@ -102,6 +102,7 @@ extern "C" {
 #include "vivify.hpp"
 #include "watch.hpp"
 #include "tsl/robin_set.h"
+#include "hashing.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -1149,7 +1150,7 @@ struct Internal {
   uint64_t last_added_import_id {0};
   int last_glue {0};
   bool add_next_derived_clause_as_axiom {false};
-  tsl::robin_set<uint64_t> active_imported_ids;
+  tsl::robin_set<uint64_t, U64Hasher> active_imported_ids;
 
   // Add temporary clause as constraint.
   //
