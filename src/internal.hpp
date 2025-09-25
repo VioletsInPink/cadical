@@ -1511,6 +1511,9 @@ struct Internal {
   void register_lrat_id_of_unit_elit (uint64_t id, int elit) {
     unsigned eidx = (elit < 0) + 2u * (unsigned) abs (elit); // ID for unit elit
     assert (eidx < external->ext_units.size ());
+    // If there's already an ID registered, then this new unit will be deleted immediately,
+    // so we should not overwrite the original registered ID.
+    if (external->ext_units[eidx]) return;
     external->ext_units[eidx] = id;
   }
 
