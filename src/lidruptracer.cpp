@@ -1,5 +1,6 @@
 #include "lidruptracer.hpp"
 #include "internal.hpp"
+#include <cstdio>
 #include <vector>
 
 namespace CaDiCaL {
@@ -413,6 +414,7 @@ void LidrupTracer::lidrup_conclude_and_delete (
       file->put (size), file->put ("\n");
     }
   }
+  bool conclusionOk = !callbacks;
   if (callbacks) assert (size == 1);
   for (auto &id : conclusion) {
     if (!callbacks) {
@@ -426,6 +428,7 @@ void LidrupTracer::lidrup_conclude_and_delete (
       assert (conclusion.size () == 1);
       if (callbacks) {
         cb_conclude (id);
+        conclusionOk = true;
       } else if (binary) {
         put_binary_zero ();
         put_binary_id (id);
@@ -440,12 +443,14 @@ void LidrupTracer::lidrup_conclude_and_delete (
         if (imported_chain.size () == 1) {
           // Only a single dependency: I think we can just replace the conclusion ID with it?
           cb_conclude (imported_chain.back ());
+          conclusionOk = true;
         } else {
           // Several dependencies: Actually need to add as a new clause
           lidrup_add_derived_clause(id, imported_clause, imported_chain);
           // Delete at the beginning of the next call, see lidrup_solve_query
           helpers_to_delete.push_back (id);
           cb_conclude (id);
+          conclusionOk = true;
         }
       } else {
         for (const auto &external_lit : imported_clause) {
@@ -474,6 +479,12 @@ void LidrupTracer::lidrup_conclude_and_delete (
       imported_clause.clear ();
       imported_chain.clear ();
     }
+  }
+  if (!conclusionOk) {
+    printf("[ERROR] CaDiCaL: Not reporting any conclusion ID -"
+      " imported_clause len %lu, imported_chain len %lu conclusion len %lu\n",
+      imported_clause.size (), imported_chain.size (), conclusion.size ());
+    abort ();
   }
   flush_if_piping ();
 }
