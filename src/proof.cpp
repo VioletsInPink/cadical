@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include "sharingtracer.hpp"
 
 namespace CaDiCaL {
 

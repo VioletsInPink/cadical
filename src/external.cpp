@@ -962,7 +962,7 @@ void External::copy_flags (External &other) const {
 /*------------------------------------------------------------------------*/
 
 void External::export_learned_empty_clause () {
-  assert (learner);
+  if (!learner) return;
   if (learner->learning (0)) {
     LOG ("exporting learned empty clause");
     learner->publish_clause (0, 0, 0, 0);

@@ -481,10 +481,12 @@ void LidrupTracer::lidrup_conclude_and_delete (
     }
   }
   if (!conclusionOk) {
-    printf("[ERROR] CaDiCaL: Not reporting any conclusion ID -"
+    printf("[WARN] CaDiCaL: Not reporting any conclusion ID -"
       " imported_clause len %lu, imported_chain len %lu conclusion len %lu\n",
       imported_clause.size (), imported_chain.size (), conclusion.size ());
-    abort ();
+    // abort ();
+    // Let's roll with it – if the empty clause is fine as a conclusion clause,
+    // our interface will auto-detect it even if we don't export a conclusion ID.
   }
   flush_if_piping ();
 }

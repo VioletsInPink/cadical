@@ -1,6 +1,7 @@
 #include "internal.hpp"
 #include "lidruptracer.hpp"
 #include "onthefly_checking.hpp"
+#include "sharingtracer.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -1177,11 +1178,27 @@ void Solver::trace_proof_internally(
   REQUIRE (
       state () == CONFIGURING,
       "can only start proof tracing right after initialization");
-  FileTracer *ft = new LidrupTracer (internal, cbProduce, cbImport, cbDelete, cbConclude);
-  connect_proof_tracer (ft, true);
+  FileTracer *ft;
+  if (internal->opts.lrat) {
+    ft = new LidrupTracer (internal, cbProduce, cbImport, cbDelete, cbConclude);
+  } else {
+    ft = new SharingTracer (internal, cbProduce);
+  }
+  connect_proof_tracer (ft, internal->opts.lrat);
   if (internal->opts.lrat) {
     internal->reserve_ids (internal->opts.lratorigclscount);
   }
+}
+
+void Solver::trace_proof_internally(LratCallbackProduceClause cbProduce) {
+  REQUIRE_VALID_STATE ();
+  REQUIRE (
+      state () == CONFIGURING,
+      "can only start proof tracing right after initialization");
+  FileTracer *ft;
+  assert (!internal->opts.lrat);
+  ft = new SharingTracer (internal, cbProduce);
+  connect_proof_tracer (ft, false);
 }
 
 void Solver::profile_to_file (const char *path) {

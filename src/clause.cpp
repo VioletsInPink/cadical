@@ -126,8 +126,7 @@ Clause *Internal::new_clause (bool red, int glue) {
 
   // export redundant clause
   if (red) {
-    if (!opts.signsharedcls)
-      external->export_learned_internal_large_clause (c->id, clause, glue);
+    external->export_learned_internal_large_clause (c->id, clause, glue);
     last_glue = glue;
   }
 

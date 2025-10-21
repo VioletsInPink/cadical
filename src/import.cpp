@@ -126,8 +126,7 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
       clause.clear ();
     }
     // Re-export the clause in its simplified form
-    if (!opts.signsharedcls)
-      external->export_learned_internal_unit_clause (impclsid, ilit);
+    external->export_learned_internal_unit_clause (impclsid, ilit);
   } else if (opts.signsharedcls) {
     // Clause was not simplified but originally a unit: add to proof
     std::vector<int> cls(1, elit);

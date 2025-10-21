@@ -799,6 +799,8 @@ public:
   // default interface (like failed assumptions or found models).
   void trace_proof_internally (LratCallbackProduceClause cbProduce, LratCallbackImportClause cbImport,
     LratCallbackDeleteClauses cbDelete, LratCallbackConcludeUnsat cbConclude);
+  // This simplified version is to actually only retrieve learned clauses for sharing.
+  void trace_proof_internally (LratCallbackProduceClause cbProduce);
 
   void profile_to_file (const char *path);
 
