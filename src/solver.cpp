@@ -1196,7 +1196,6 @@ void Solver::trace_proof_internally(LratCallbackProduceClause cbProduce) {
       state () == CONFIGURING,
       "can only start proof tracing right after initialization");
   FileTracer *ft;
-  assert (!internal->opts.lrat);
   ft = new SharingTracer (internal, cbProduce);
   connect_proof_tracer (ft, false);
 }

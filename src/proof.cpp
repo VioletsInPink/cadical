@@ -240,6 +240,14 @@ void Proof::add_original_clause (uint64_t id, bool r,
   add_original_clause ();
 }
 
+void Proof::add_original_ext_clause_with_signature (uint64_t id,
+    const std::vector<int> & clause, const std::vector<uint8_t>& signature) {
+  if (internal->opts.lrat && clause.size () == 1)
+    internal->register_lrat_id_of_unit_elit (id, clause[0]);
+  for (auto &tracer : tracers)
+    tracer->add_original_clause_with_signature (id, clause, signature);
+}
+
 void Proof::add_external_original_clause (uint64_t id, bool r,
                                           const vector<int> &c,
                                           bool restore) {
@@ -532,6 +540,8 @@ void Proof::add_original_clause (bool restore) {
 
   if (lratbuilder)
     lratbuilder->add_original_clause (clause_id, clause);
+  if (internal->opts.lrat && clause.size () == 1)
+    internal->register_lrat_id_of_unit_elit (clause_id, clause[0]);
   for (auto &tracer : tracers) {
     tracer->add_original_clause (clause_id, false, clause, restore);
   }
@@ -546,6 +556,8 @@ void Proof::add_derived_clause () {
   if (lratbuilder) {
     proof_chain = lratbuilder->add_clause_get_proof (clause_id, clause);
   }
+  if (internal->opts.lrat && clause.size () == 1)
+    internal->register_lrat_id_of_unit_elit (clause_id, clause[0]);
   for (auto &tracer : tracers) {
     tracer->add_derived_clause (clause_id, redundant, clause, proof_chain);
   }

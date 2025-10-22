@@ -241,12 +241,6 @@ void LidrupTracer::add_original_clause_with_signature (uint64_t id,
       internal->opts.lratsolverid, internal->opts.lratsolvercount);
     abort();
   }
-  // XXX
-  // Here and also in derive and import, I explicitly set each observed external unit
-  // in the ext_units vector. This ensures that all of them are present at any time,
-  // including during clause import.
-  if (clause.size () == 1)
-    internal->register_lrat_id_of_unit_elit (id, clause[0]);
   // Also remember the imported ID so we can avoid to re-import it as long as it wasn't deleted.
   internal->active_imported_ids.insert(id);
   cb_import (id, clause.data (), clause.size (), signature.data (), signature.size ());
@@ -261,8 +255,6 @@ void LidrupTracer::lidrup_add_derived_clause (
         internal->opts.lratsolverid, internal->opts.lratsolvercount);
       abort();
     }
-    if (clause.size () == 1)
-      internal->register_lrat_id_of_unit_elit (id, clause[0]);
     cb_produce (id, clause.data (), clause.size (), chain.data (), chain.size (), clause.size ());
     return;
   }
@@ -298,8 +290,6 @@ void LidrupTracer::lidrup_add_derived_clause (
 void LidrupTracer::lidrup_add_original_clause (uint64_t id,
                                                const vector<int> &clause) {
   lidrup_batch_weaken_restore_and_delete ();
-  if (clause.size () == 1)
-    internal->register_lrat_id_of_unit_elit (id, clause[0]);
   if (callbacks) return;
   if (binary) {
     file->put ('i');

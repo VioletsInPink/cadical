@@ -58,7 +58,8 @@ public:
   // Add original clauses to the proof (for online proof checking).
   //
   void add_original_clause (uint64_t, bool, const vector<int> &);
-
+  void add_original_ext_clause_with_signature (uint64_t id,
+    const std::vector<int> & clause, const std::vector<uint8_t>& signature);
   void add_assumption_clause (uint64_t, const vector<int> &,
                               const vector<uint64_t> &);
   void add_assumption_clause (uint64_t, int, const vector<uint64_t> &);

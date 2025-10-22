@@ -1144,8 +1144,8 @@ struct Internal {
   void import_redundant_clauses (int& res);
   void handle_incoming_clause (uint64_t id, int glue, std::vector<int>& cls, const std::vector<uint8_t>& sig);
   void try_import_unit (uint64_t id, int elit, bool simplified, const std::vector<uint8_t>& sig);
-  void add_clause_to_proof (uint64_t id);
-  void validate_clause_and_add_as_axiom (uint64_t id, std::vector<int>& cls, const std::vector<uint8_t>& sig);
+  void add_derived_clause_to_proof (uint64_t id);
+  void add_incoming_clause_as_axiom (uint64_t id, std::vector<int>& cls, const std::vector<uint8_t>& sig);
   void delete_clause_in_proof (uint64_t id);
   uint64_t last_added_import_id {0};
   int last_glue {0};

@@ -8,14 +8,9 @@
 #include <sys/syscall.h>
 #define gettid() syscall(SYS_gettid)
 
-// Write a LRAT derivation straight to the tracers
-// without the detour over "Proof::add_derived_*_clause".
-void CaDiCaL::Internal::add_clause_to_proof (uint64_t id) {
+// Write a LRAT derivation to the tracers.
+void CaDiCaL::Internal::add_derived_clause_to_proof (uint64_t id) {
   assert (is_locally_produced_lrat_id (id));
-
-  // externalize literals
-  std::vector<int> elits;
-  for (int ilit : clause) elits.push_back(externalize (ilit));
 
   // debug logging
   if (opts.lratdebug) {
@@ -23,6 +18,9 @@ void CaDiCaL::Internal::add_clause_to_proof (uint64_t id) {
       dbg_ofs_import_simplifications = std::ofstream(".importsimpl." + std::to_string(opts.lratsolverid) + "." + std::to_string(gettid()));
     }
     std::string clause_str;
+    // externalize literals
+    std::vector<int> elits;
+    for (int ilit : clause) elits.push_back(externalize (ilit));
     for (int elit : elits) clause_str += std::to_string(elit) + " ";
     std::string chain_str;
     for (auto chain_id : lrat_chain) chain_str += std::to_string(chain_id) + " ";
@@ -31,9 +29,7 @@ void CaDiCaL::Internal::add_clause_to_proof (uint64_t id) {
   }
 
   // add to proofs / tracers
-  for (auto &tracer : proof->get_tracers ()) {
-    tracer->add_derived_clause (id, /*redundant=*/true, elits, lrat_chain);
-  }
+  proof->add_derived_clause (id, /*redundant=*/true, clause, lrat_chain);
 }
 
 // Adjusted and simplified version of Internal::search_assign (analyze.cpp).
@@ -121,37 +117,30 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
       assert(!lrat_chain.empty ());
       push_lrat_chain (id); // add ID of the "original" incoming clause!
       clause.resize (1, ilit);
-      add_clause_to_proof (impclsid);
+      add_derived_clause_to_proof (impclsid);
       clear_lrat_chain ();
       clause.clear ();
     }
     // Re-export the clause in its simplified form
     external->export_learned_internal_unit_clause (impclsid, ilit);
-  } else if (opts.signsharedcls) {
+  } else {
     // Clause was not simplified but originally a unit: add to proof
     std::vector<int> cls(1, elit);
-    validate_clause_and_add_as_axiom(id, cls, sig);
+    add_incoming_clause_as_axiom(id, cls, sig);
   }
   learn_imported_unit_clause (impclsid, elit);
 }
 
-void CaDiCaL::Internal::validate_clause_and_add_as_axiom (uint64_t id, std::vector<int>& cls, const std::vector<uint8_t>& sig) {
+void CaDiCaL::Internal::add_incoming_clause_as_axiom (uint64_t id, std::vector<int>& cls, const std::vector<uint8_t>& sig) {
 
-  // Validate the clause's signature
-  if (!opts.signsharedcls) return;
   // Forward the clause to the checker/proof **as an axiom** (i.e., "original" clause)
   // and to validate the signature.
-  for (auto tracer : proof->get_tracers ()) {
-    tracer->add_original_clause_with_signature (id, cls, sig);
-  }
+  proof->add_original_ext_clause_with_signature (id, cls, sig);
   stats.validated_incoming_cls++;
 }
 
 void CaDiCaL::Internal::delete_clause_in_proof (uint64_t id) {
-  if (!opts.signsharedcls) return;
-  for (auto tracer : proof->get_tracers ()) {
-    tracer->delete_clause(id, true, std::vector<int>());
-  }
+  proof->delete_clause (id, true, std::vector<int>());
 }
 
 // Attempt to import a single clause with external literals.
@@ -170,7 +159,6 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
   assert (clause.empty ());
   if (lrat) {
     assert (lrat_chain.empty ());
-    assert (opts.signsharedcls || !is_locally_produced_lrat_id (id));
     if (is_locally_produced_lrat_id (id)) return; // no need to re-add your own clause
   }
 
@@ -246,7 +234,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
     return;
   }
 
-  validate_clause_and_add_as_axiom (id, cls, sig);
+  add_incoming_clause_as_axiom (id, cls, sig);
 
   // Clause can be imported. Which size?
   if (clause.empty ()) {
@@ -255,7 +243,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
     if (lrat) {
       assert (!lrat_chain.empty ());
       push_lrat_chain (id); // add ID of the "original" incoming clause!
-      add_clause_to_proof (next_lrat_id ());
+      add_derived_clause_to_proof (next_lrat_id ());
       clear_lrat_chain ();
       delete_clause_in_proof (id);
     }
@@ -279,7 +267,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
   if (reducedSize && lrat) {
     assert (!lrat_chain.empty ());
     push_lrat_chain (id); // add ID of the "original" incoming clause!
-    add_clause_to_proof (impclsid);
+    add_derived_clause_to_proof (impclsid);
     clear_lrat_chain ();
     delete_clause_in_proof (id);
   }

@@ -80,8 +80,6 @@ void LratTracer::lrat_add_clause (uint64_t id, bool,
                                   const vector<int> &clause,
                                   const vector<uint64_t> &chain) {
 
-  assert (!internal->opts.signsharedcls);
-
   // sanity check
   if (id <= latest_id) {
     printf("ERROR - added import ID %lu out of order (prev: %lu)!\n", id, latest_id);
