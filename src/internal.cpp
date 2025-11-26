@@ -23,7 +23,7 @@ Internal::Internal ()
       probe_reason (0), propagated (0), propagated2 (0), propergated (0),
       best_assigned (0), target_assigned (0), no_conflict_until (0),
       unsat_constraint (false), marked_failed (true), num_assigned (0),
-      proof (0), lratbuilder (0), opts (this),
+      proof (0), lratbuilder (0), transformed_id (0), opts (this),
 #ifndef QUIET
       profiles (this), force_phase_messages (false),
 #endif

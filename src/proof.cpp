@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include "palruptracer.hpp"
 #include "sharingtracer.hpp"
 
 namespace CaDiCaL {
@@ -145,6 +146,10 @@ void Internal::trace (File *file) {
     FileTracer *ft =
         new FratTracer (this, file, opts.binary, opts.frat == 1);
     connect_proof_tracer (ft, antecedents, true);
+  } else if (opts.lratpalrup) {
+    LOG ("PROOF connecting PalRUP tracer");
+    FileTracer *ft = new PalRupTracer (this, file, opts.binary);
+    connect_proof_tracer (ft, true);
   } else if (opts.lrat) {
     LOG ("PROOF connecting LRAT tracer");
     FileTracer *ft = new LratTracer (this, file, opts.binary);

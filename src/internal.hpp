@@ -77,6 +77,7 @@ extern "C" {
 #include "lratbuilder.hpp"
 #include "lratchecker.hpp"
 #include "lrattracer.hpp"
+#include "palruptracer.hpp"
 #include "message.hpp"
 #include "occs.hpp"
 #include "options.hpp"
@@ -270,6 +271,7 @@ struct Internal {
   vector<FileTracer *>
       file_tracers; // file proof tracers (ie DRAT, LRAT...)
   vector<StatTracer *> stat_tracers; // checkers
+  uint64_t transformed_id;
 
   Options opts; // run-time options
   Stats stats;  // statistics
