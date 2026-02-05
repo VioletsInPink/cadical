@@ -415,7 +415,7 @@ void Internal::add_new_original_clause (uint64_t id) {
         LOG ("tautological since both %d and %d occur", -lit, lit);
         skip = true;
       } else {
-        mark (lit);
+        if (tmp == 0) mark (lit);
         external->ext_flags[abs (elit)] = true;
         tmp = fixed (lit);
         if (tmp < 0) {

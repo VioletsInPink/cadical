@@ -227,11 +227,13 @@ void PalRupTracer::lrat_add_clause (uint64_t id, bool,
       put_binary_zero ();
     else
       file->put ("0 ");
-    for (const auto &c : chain)
+    for (const auto &c : chain) {
+      assert (c < id); // essential acyclicity property of PalRUP (why we do the ID transformations)
       if (binary)
         put_binary_id (c);
       else
         file->put (c), file->put (' '); // in proof chain, so they get
+    }
   }
 
   if (binary)

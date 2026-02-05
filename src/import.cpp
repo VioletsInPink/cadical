@@ -8,6 +8,11 @@
 #include <sys/syscall.h>
 #define gettid() syscall(SYS_gettid)
 
+inline void enlarge_vars_for_elit_as_needed (CaDiCaL::External* ext, int elit) {
+  const int idx = abs (elit) - 1;
+  if (idx > ext->max_var) ext->init (idx + 1);
+}
+
 // Write a LRAT derivation to the tracers.
 void CaDiCaL::Internal::add_derived_clause_to_proof (uint64_t id) {
   assert (is_locally_produced_lrat_id (id));
@@ -85,6 +90,8 @@ void CaDiCaL::Internal::try_import_unit (uint64_t id, int elit, bool simplified,
 
   assert (clause.empty ());
   assert (!lrat || !simplified == lrat_chain.empty ());
+
+  enlarge_vars_for_elit_as_needed (this->external, elit);
 
   // Do not learn unit clause if marked as witness
   if (external->marked (external->witness, elit)) {
@@ -179,6 +186,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
 
     int elit = cls[i];
     assert (elit != 0);
+    enlarge_vars_for_elit_as_needed (this->external, elit);
 
     if (external->marked (external->witness, elit)) {
       // Literal marked as witness: Cannot import
