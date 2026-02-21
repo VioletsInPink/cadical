@@ -5,8 +5,6 @@
 #include <string>
 #include <iomanip>
 #include <unistd.h>
-#include <sys/syscall.h>
-#define gettid() syscall(SYS_gettid)
 
 inline void enlarge_vars_for_elit_as_needed (CaDiCaL::External* ext, int elit) {
   const int idx = abs (elit) - 1;

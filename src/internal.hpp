@@ -105,6 +105,9 @@ extern "C" {
 #include "tsl/robin_set.h"
 #include "hashing.hpp"
 
+#include <sys/syscall.h>
+#define gettid() syscall(SYS_gettid)
+
 /*------------------------------------------------------------------------*/
 
 namespace CaDiCaL {
