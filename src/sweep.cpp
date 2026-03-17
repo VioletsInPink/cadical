@@ -533,7 +533,7 @@ void Internal::add_core (Sweeper &sweeper, unsigned core_idx) {
                 const int idx = abs (lit);
                 if (sweeper.prev_units[idx]) {
                   int64_t uid = unit_id (-lit);
-                  lrat_chain.push_back (uid);
+                  push_lrat_chain (uid);
                   analyzed.push_back (lit);
                   flags (lit).seen = true;
                 }
@@ -544,7 +544,7 @@ void Internal::add_core (Sweeper &sweeper, unsigned core_idx) {
         }
         assert (id);
         if (id != INVALID64)
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
       }
       clear_analyzed_literals ();
     }
@@ -560,12 +560,12 @@ void Internal::add_core (Sweeper &sweeper, unsigned core_idx) {
       int unit = pc.literals[0];
       if (val (unit) > 0) {
         LOG ("already assigned sweeping unit %d", unit);
-        lrat_chain.clear ();
+        clear_lrat_chain ();
       } else if (val (unit) < 0) {
         LOG ("falsified sweeping unit %d leads to empty clause", unit);
         if (lrat) {
           int64_t id = unit_id (-unit);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
         }
         learn_empty_clause ();
         core.resize (unsat_size);
@@ -587,7 +587,7 @@ void Internal::add_core (Sweeper &sweeper, unsigned core_idx) {
     if (proof) {
       pc.cad_id = ++clause_id;
       proof->add_derived_clause (pc.cad_id, true, pc.literals, lrat_chain);
-      lrat_chain.clear ();
+      clear_lrat_chain ();
     }
   }
 }
@@ -906,10 +906,10 @@ int64_t Internal::add_sweep_binary (sweep_proof_clause pc, int lit,
     for (const auto &plit : pc.literals) {
       if (val (plit)) {
         int64_t id = unit_id (-plit);
-        lrat_chain.push_back (id);
+        push_lrat_chain (id);
       }
     }
-    lrat_chain.push_back (pc.cad_id);
+    push_lrat_chain (pc.cad_id);
   }
   clause.push_back (lit);
   clause.push_back (other);
@@ -927,7 +927,7 @@ int64_t Internal::add_sweep_binary (sweep_proof_clause pc, int lit,
     tracer->notify_equivalence (elit, -eother);
   }
   clause.clear ();
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   return id;
 }
 
@@ -1037,11 +1037,11 @@ void Internal::sweep_substitute_lrat (Clause *c, int64_t id) {
     assert (val (lit) <= 0);
     if (val (lit) < 0) {
       int64_t id = unit_id (-lit);
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
     }
   }
-  lrat_chain.push_back (id);
-  lrat_chain.push_back (c->id);
+  push_lrat_chain (id);
+  push_lrat_chain (c->id);
 }
 
 #define all_scheduled(IDX) \
@@ -1153,7 +1153,7 @@ void Internal::substitute_connected_clauses (Sweeper &sweeper, int lit,
         proof->delete_clause (c);
       }
       c->id = new_id;
-      lrat_chain.clear ();
+      clear_lrat_chain ();
       size_t l;
       int *literals = c->literals;
       for (l = 0; l < clause.size (); l++)
@@ -1201,17 +1201,17 @@ void Internal::sweep_substitute_new_equivalences (Sweeper &sweeper) {
     if (val (lit) < 0) {
       if (lrat) {
         const int64_t lid = unit_id (-lit);
-        lrat_chain.push_back (lid);
+        push_lrat_chain (lid);
       }
       if (!val (other)) {
         if (lrat)
-          lrat_chain.push_back (sb.id);
+          push_lrat_chain (sb.id);
         assign_unit (other);
       } else if (val (other) < 0) {
         if (lrat) {
           const int64_t oid = unit_id (-other);
-          lrat_chain.push_back (oid);
-          lrat_chain.push_back (sb.id);
+          push_lrat_chain (oid);
+          push_lrat_chain (sb.id);
         }
         learn_empty_clause ();
         return;
@@ -1220,14 +1220,14 @@ void Internal::sweep_substitute_new_equivalences (Sweeper &sweeper) {
       if (!val (lit)) {
         if (lrat) {
           const int64_t oid = unit_id (-other);
-          lrat_chain.push_back (oid);
-          lrat_chain.push_back (sb.id);
+          push_lrat_chain (oid);
+          push_lrat_chain (sb.id);
         }
         assign_unit (lit);
       } else
         assert (val (lit) > 0);
     }
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     delete_sweep_binary (sb);
     if (count == 2) {
       if (!val (lit) && !val (other)) {

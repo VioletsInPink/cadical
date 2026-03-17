@@ -788,7 +788,7 @@ Clause *Internal::wrapped_learn_external_reason_clause (int ilit) {
   clear_lrat_chain ();
 =======
   std::vector<int64_t> chain_tmp{std::move (lrat_chain)};
-  lrat_chain.clear ();
+  clear_lrat_chain ();
 >>>>>>> upstream/master
   if (clause.empty ()) {
     res = learn_external_reason_clause (ilit, 0, true);

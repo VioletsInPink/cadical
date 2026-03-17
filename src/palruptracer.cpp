@@ -176,6 +176,10 @@ void PalRupTracer::lrat_add_clause (uint64_t id, bool,
                                   const vector<int> &clause,
                                   vector<uint64_t> &chain, bool imported) {
 
+  if (id <= internal->opts.lratorigclscount) {
+    printf("ERROR - invalid (pre-adjusted) ID %lu (%i orig. clauses)!\n", id, internal->opts.lratorigclscount);
+    abort();
+  }
   if (!imported) {
     id = plrat_utils_get_next_valid_id(id, chain.data(), chain.size());
     internal->transformed_id = id;

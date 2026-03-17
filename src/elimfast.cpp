@@ -168,7 +168,7 @@ inline void Internal::elimfast_add_resolvents (Eliminator &eliminator,
       Clause *r = new_resolved_irredundant_clause ();
       elim_update_added_clause (eliminator, r);
       eliminator.enqueue (r);
-      lrat_chain.clear ();
+      clear_lrat_chain ();
       clause.clear ();
 #ifdef LOGGING
       resolvents++;

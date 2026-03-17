@@ -528,11 +528,11 @@ void Internal::add_self_subsuming_factor (Quotient *q, Quotient *p) {
           }
         }
         if (match) {
-          lrat_chain.push_back (d->id);
+          push_lrat_chain (d->id);
           break;
         }
       }
-      lrat_chain.push_back (c->id);
+      push_lrat_chain (c->id);
       assert (lrat_chain.size () == 2);
     }
     if (clause.size () > 1) {
@@ -545,17 +545,17 @@ void Internal::add_self_subsuming_factor (Quotient *q, Quotient *p) {
       else if (tmp < 0) {
         if (lrat) {
           int64_t id = unit_id (-unit);
-          lrat_chain.push_back (id);
+          push_lrat_chain (id);
           std::reverse (lrat_chain.begin (), lrat_chain.end ());
         }
         learn_empty_clause ();
         clause.clear ();
-        lrat_chain.clear ();
+        clear_lrat_chain ();
         break;
       }
     }
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
   }
 }
 
@@ -644,16 +644,16 @@ void Internal::add_factored_quotient (Quotient *q, int not_fresh) {
       assert (q->bid);
       unsigned idxtoo = idx;
       for (Quotient *p = q; p; p = p->prev) {
-        lrat_chain.push_back (p->qlauses[idxtoo]->id);
+        push_lrat_chain (p->qlauses[idxtoo]->id);
         if (p->prev)
           idxtoo = p->matches[idx];
       }
-      lrat_chain.push_back (q->bid);
+      push_lrat_chain (q->bid);
     }
     clause.push_back (not_fresh);
     new_factor_clause (0);
     clause.clear ();
-    lrat_chain.clear ();
+    clear_lrat_chain ();
   }
   if (proof) {
     clause.push_back (not_fresh);

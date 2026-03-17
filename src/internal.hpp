@@ -1857,7 +1857,7 @@ struct Internal {
   const char* dbg_file;
   int dbg_line;
   inline void do_push_lrat_chain (uint64_t id) {
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
     if (!out_lrat_chain) {
       std::string path = "lratchain." + std::to_string(gettid());
       out_lrat_chain = fopen(path.c_str(), "w");
@@ -1866,7 +1866,7 @@ struct Internal {
   }
   inline void do_clear_lrat_chain () {
     if (lrat_chain.empty ()) return;
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     if (!out_lrat_chain) {
       std::string path = "lratchain." + std::to_string(gettid());
       out_lrat_chain = fopen(path.c_str(), "w");

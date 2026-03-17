@@ -1306,7 +1306,7 @@ void Internal::lazy_external_propagator_out_of_order_clause (int &uip) {
     if (lrat) {
       LOG (unit_chain, "unit chain: ");
       for (auto id : unit_chain)
-        lrat_chain.push_back (id);
+        push_lrat_chain (id);
       unit_chain.clear ();
       reverse (lrat_chain.begin (), lrat_chain.end ());
     }
@@ -1338,7 +1338,7 @@ void Internal::lazy_external_propagator_out_of_order_clause (int &uip) {
   clause.clear ();
 
   if (unsat) {
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     STOP (analyze);
   }
 }

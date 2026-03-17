@@ -153,7 +153,7 @@ static void traverse_one_sided_core_lemma_with_lrat (
           }
         }
         assert (id);
-        internal->lrat_chain.push_back (id);
+        push_lrat_chain (id);
       }
       internal->assign_unit (unit);
       assert (internal->lrat_chain.empty ());

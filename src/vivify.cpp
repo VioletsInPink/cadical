@@ -655,7 +655,7 @@ void Internal::vivify_analyze (Clause *start, bool &subsumes,
     Var &w = var (uip);
     reason = w.reason;
     if (lrat && reason)
-      lrat_chain.push_back (reason->id);
+      push_lrat_chain (reason->id);
   }
   (void) candidate;
 }
@@ -690,7 +690,7 @@ void Internal::vivify_deduce (Clause *candidate, Clause *conflict,
     redundant = reason->redundant;
     LOG (reason, "resolving with");
     if (lrat)
-      lrat_chain.push_back (reason->id);
+      push_lrat_chain (reason->id);
     for (auto lit : *reason) {
       const Var &v = var (lit);
       Flags &f = flags (lit);
@@ -744,7 +744,7 @@ void Internal::vivify_deduce (Clause *candidate, Clause *conflict,
       *subsuming = reason;
       unmark (candidate);
       if (lrat)
-        lrat_chain.clear ();
+        clear_lrat_chain ();
       return;
     }
   }
@@ -757,7 +757,7 @@ void Internal::vivify_deduce (Clause *candidate, Clause *conflict,
     LOG (candidate, "vivify subsumed");
     LOG (*subsuming, "vivify subsuming");
     if (lrat)
-      lrat_chain.clear ();
+      clear_lrat_chain ();
   }
 }
 
@@ -1093,7 +1093,7 @@ bool Internal::vivify_clause (Vivifier &vivifier, Clause *c) {
   //
   if (lrat) {
     for (auto id : unit_chain)
-      lrat_chain.push_back (id);
+      push_lrat_chain (id);
     unit_chain.clear ();
     reverse (lrat_chain.begin (), lrat_chain.end ());
   }
@@ -1142,7 +1142,7 @@ bool Internal::vivify_clause (Vivifier &vivifier, Clause *c) {
     assert (level > 2);
     assert ((size_t) level == sorted.size ());
     LOG (c, "vivification failed on");
-    lrat_chain.clear ();
+    clear_lrat_chain ();
     assert (!subsume);
     if (!subsume && opts.vivifyinst) {
       res = vivify_instantiate (sorted, c, lrat_stack, ticks);
@@ -1160,7 +1160,7 @@ bool Internal::vivify_clause (Vivifier &vivifier, Clause *c) {
 
   clause.clear ();
   clear_analyzed_literals (); // TODO why needed?
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   conflict = nullptr;
   ignore = nullptr;
 

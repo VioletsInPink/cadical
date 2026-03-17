@@ -20,9 +20,9 @@ inline void Internal::backbone_lrat_for_units (int lit, Clause *reason) {
       continue;
     const int signed_reason_lit = val (reason_lit) * reason_lit;
     int64_t id = unit_id (signed_reason_lit);
-    lrat_chain.push_back (id);
+    push_lrat_chain (id);
   }
-  lrat_chain.push_back (reason->id);
+  push_lrat_chain (reason->id);
 }
 
 inline bool Internal::backbone_propagate (int64_t &ticks) {
@@ -49,7 +49,7 @@ inline bool Internal::backbone_propagate (int64_t &ticks) {
           ticks++;
           build_chain_for_units (w.blit, w.clause, 0);
           backbone_assign (w.blit, w.clause);
-          lrat_chain.clear ();
+          clear_lrat_chain ();
         }
       }
     } else if (!conflict && propagated != trail.size ()) {
@@ -108,7 +108,7 @@ inline bool Internal::backbone_propagate (int64_t &ticks) {
             assert (v < 0);
             build_chain_for_units (other, w.clause, 0);
             backbone_assign_any (other, w.clause);
-            lrat_chain.clear ();
+            clear_lrat_chain ();
           } else {
             if (w.clause == ignore) {
               LOG ("ignoring conflict due to clause to vivify");
@@ -160,7 +160,7 @@ inline void Internal::backbone_propagate2 (int64_t &ticks) {
         assert (lrat_chain.empty ());
         backbone_lrat_for_units (w.blit, w.clause);
         backbone_assign (w.blit, w.clause);
-        lrat_chain.clear ();
+        clear_lrat_chain ();
       }
     }
   }
@@ -221,7 +221,7 @@ int Internal::backbone_analyze (Clause *, int64_t &ticks) {
   flags (conflict->literals[1]).seen = true;
   LOG (conflict, "analyzing conflict");
   if (lrat)
-    lrat_chain.push_back (conflict->id);
+    push_lrat_chain (conflict->id);
   conflict = nullptr;
 
   for (auto t = trail.rbegin ();;) {
@@ -237,7 +237,7 @@ int Internal::backbone_analyze (Clause *, int64_t &ticks) {
     const int other = reason->literals[0] ^ reason->literals[1] ^ lit;
     Flags &f_o = flags (other);
     if (lrat)
-      lrat_chain.push_back (reason->id);
+      push_lrat_chain (reason->id);
     if (!f_o.seen) {
       f_o.seen = true;
       analyzed.push_back (other);
@@ -276,7 +276,7 @@ inline void Internal::backbone_unit_assign (int lit) {
   num_assigned++;
   v.reason = 0; // for conflict analysis
   learn_unit_clause (lit);
-  lrat_chain.clear ();
+  clear_lrat_chain ();
   const signed char tmp = sign (lit);
   vals[idx] = tmp;
   vals[-idx] = -tmp;

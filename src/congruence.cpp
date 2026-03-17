@@ -1432,9 +1432,9 @@ bool Closure::learn_congruence_unit (int lit, bool delay_propagation,
       assert (internal->lrat_chain.empty ());
       LRAT_ID id = internal->unit_id (-lit);
       LOG ("for literal %s adding unit %" PRId64, LOGLIT (-lit), id);
-      internal->lrat_chain.push_back (id);
+      push_lrat_chain (id);
       for (auto id : lrat_chain)
-        internal->lrat_chain.push_back (id);
+        push_lrat_chain (id);
       lrat_chain.clear ();
     }
     internal->learn_empty_clause ();
@@ -1592,9 +1592,9 @@ bool Closure::really_merge_literals (
       LRAT_ID id = simplify_and_add_to_proof_chain (unsimplified);
 
       if (internal->lrat) {
-        internal->lrat_chain.push_back (id);
+        push_lrat_chain (id);
         for (auto id : *larger_chain)
-          internal->lrat_chain.push_back (id);
+          push_lrat_chain (id);
         LOG (internal->lrat_chain, "lrat chain");
       }
     }
@@ -1652,7 +1652,7 @@ bool Closure::really_merge_literals (
       // not assigned, first assign one
       internal->assign_unit (-larger_repr);
       if (internal->lrat) {
-        internal->lrat_chain.clear ();
+        clear_lrat_chain ();
 
         if (larger != larger_repr)
           push_lrat_unit (-larger_repr);
@@ -1667,7 +1667,7 @@ bool Closure::really_merge_literals (
     }
     internal->learn_empty_clause ();
     if (internal->lrat)
-      internal->lrat_chain.clear ();
+      clear_lrat_chain ();
     return false;
   }
 
@@ -2580,9 +2580,9 @@ void Closure::update_and_gate (Gate *g, GatesTable::iterator it, int src,
       other = find_eager_representative_and_compress (-unit);
       if (internal->lrat && -unit != other) {
         assert (internal->lrat_chain.empty ());
-        internal->lrat_chain.push_back (eager_representative_id (-unit));
+        push_lrat_chain (eager_representative_id (-unit));
         for (auto id : lrat_chain)
-          internal->lrat_chain.push_back (id);
+          push_lrat_chain (id);
         lrat_chain.clear ();
         swap (internal->lrat_chain, lrat_chain);
       }
@@ -2674,9 +2674,9 @@ void Closure::update_xor_gate (Gate *g, GatesTable::iterator git) {
     }
 
     if (internal->lrat && internal->val (-g->lhs) < 0) {
-      internal->lrat_chain.push_back (internal->unit_id (g->lhs));
+      push_lrat_chain (internal->unit_id (g->lhs));
       for (auto id : lrat_chain)
-        internal->lrat_chain.push_back (id);
+        push_lrat_chain (id);
       lrat_chain.clear ();
       internal->learn_empty_clause ();
     } else
@@ -3092,7 +3092,7 @@ Clause *Closure::add_binary_clause (int a, int b) {
   LOG (res, "learning clause");
   internal->clause.clear ();
   if (internal->lrat) {
-    internal->lrat_chain.clear ();
+    clear_lrat_chain ();
   }
   assert (internal->clause.empty ());
   assert (internal->lrat_chain.empty ());
