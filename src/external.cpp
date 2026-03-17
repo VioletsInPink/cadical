@@ -206,7 +206,7 @@ void External::add (int elit) {
     eclause.push_back (elit);
     if (internal->lrat) {
       // actually find unit of -elit (flips elit < 0)
-      unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit); // ID for unit -elit
+      unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
       assert ((size_t) eidx < ext_units.size ());
       const int64_t id = ext_units[eidx];
       bool added = ext_flags[abs (elit)];

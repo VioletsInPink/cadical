@@ -219,7 +219,7 @@ void CaDiCaL::Internal::handle_incoming_clause (uint64_t id, int glue, std::vect
         // We look up the *external* literal directly, without internalizing
         // and re-externalizing (!), so that compacting does not
         // destroy the mapping.
-        unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit); // ID for unit -elit
+        unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
         assert (eidx < external->ext_units.size ());
         uint64_t uid = external->ext_units[eidx];
         assert (uid);

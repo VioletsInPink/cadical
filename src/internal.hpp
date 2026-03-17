@@ -1848,21 +1848,21 @@ struct Internal {
   std::ofstream dbg_ofs_import_simplifications;
 
   bool creating_external_clause {false};
-  inline uint64_t next_lrat_id () {
+  inline int64_t next_lrat_id () {
     clause_id += opts.lratsolvercount;
     assert(!lrat || creating_external_clause == !is_locally_produced_lrat_id(clause_id));
-    if (clause_id >= (~0L - (1L<<32) - (1L<<31))) abort ();
+    if (clause_id >= (1L<<62) || clause_id < 0) abort ();
     return clause_id;
   }
-  bool is_locally_produced_lrat_id (uint64_t id) {
-    return id % opts.lratsolvercount == (uint64_t) opts.lratsolverid;
+  bool is_locally_produced_lrat_id (int64_t id) {
+    return id % opts.lratsolvercount == opts.lratsolverid;
   }
   void backtrack_last_lrat_id () {
     clause_id -= opts.lratsolvercount;
   }
 
-  void register_lrat_id_of_unit_elit (uint64_t id, int elit) {
-    unsigned eidx = (elit < 0) + 2u * (unsigned) abs (elit); // ID for unit elit
+  void register_lrat_id_of_unit_elit (int64_t id, int elit) {
+    unsigned eidx = (elit < 0) + 2u * (unsigned) abs (elit);
     assert (eidx < external->ext_units.size ());
     // If there's already an ID registered, then this new unit will be deleted immediately,
     // so we should not overwrite the original registered ID.
@@ -1877,7 +1877,7 @@ struct Internal {
   const char* dbg_file;
   int dbg_line;
   inline void do_push_lrat_chain (uint64_t id) {
-    push_lrat_chain (id);
+    lrat_chain.push_back (id);
     if (!out_lrat_chain) {
       std::string path = "lratchain." + std::to_string(gettid());
       out_lrat_chain = fopen(path.c_str(), "w");
@@ -1886,12 +1886,12 @@ struct Internal {
   }
   inline void do_clear_lrat_chain () {
     if (lrat_chain.empty ()) return;
-    clear_lrat_chain ();
+    lrat_chain.clear ();
     if (!out_lrat_chain) {
       std::string path = "lratchain." + std::to_string(gettid());
       out_lrat_chain = fopen(path.c_str(), "w");
     }
-    fprintf (out_lrat_chain, "%s:%i\n", dbg_file, dbg_line);
+    fprintf (out_lrat_chain, "%s:%i:clear\n", dbg_file, dbg_line);
   }
 };
 

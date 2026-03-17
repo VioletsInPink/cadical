@@ -1155,7 +1155,7 @@ void Internal::finalize (int res) {
     for (const auto &lit : lits) {
       const auto elit = externalize (lit);
       if (elit) {
-        const unsigned eidx = (elit < 0) + 2u * (unsigned) abs (elit); // ID for unit elit
+        const unsigned eidx = (elit < 0) + 2u * (unsigned) abs (elit);
         const int64_t id = external->ext_units[eidx];
         if (id) {
           assert (unit_clauses (vlit (lit)) == id);

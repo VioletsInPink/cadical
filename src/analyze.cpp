@@ -817,7 +817,7 @@ Clause *Internal::on_the_fly_strengthen (Clause *new_conflict, int uip) {
       const auto id = *i;
       mini_chain.push_back (id);
     }
-    clear_lrat_chain (); // see if this is correct...
+    clear_lrat_chain ();
     clear_unit_analyzed_literals ();
     unit_chain.clear ();
   }

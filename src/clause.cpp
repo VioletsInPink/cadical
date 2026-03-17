@@ -437,7 +437,7 @@ void Internal::add_new_original_clause (int64_t id) {
         if (tmp < 0) {
           LOG ("removing falsified literal %d", lit);
           if (lrat) {
-            unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);  // ID for unit -elit
+            unsigned eidx = (elit > 0) + 2u * (unsigned) abs (elit);
             if (!external->ext_units[eidx]) {
               int64_t uid = unit_id (-lit);
               push_lrat_chain (uid);

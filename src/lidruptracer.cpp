@@ -1,5 +1,6 @@
 #include "lidruptracer.hpp"
 #include "internal.hpp"
+#include "tracer.hpp"
 #include <cstdio>
 #include <vector>
 
@@ -417,8 +418,9 @@ void LidrupTracer::lidrup_conclude_and_delete (
         file->put ("u ");
     }
     if (!find_and_delete (id)) {
+      // id was *not* contained in lookup table
       assert (imported_clause.empty ());
-      assert (conclusion.size () == 1);
+      assert (conclusion.size () == 1); // must be the only one (?)
       if (callbacks) {
         cb_conclude (id);
         conclusionOk = true;
@@ -632,11 +634,13 @@ void LidrupTracer::weaken_minus (int64_t id, const vector<int> &) {
   insert ();
 }
 
-void LidrupTracer::conclude_unsat (ConclusionType,
+void LidrupTracer::conclude_unsat (ConclusionType con,
                                    const vector<int64_t> &conclusion) {
   if (!callbacks && file->closed ())
     return;
   assert (imported_clause.empty ());
+  if (callbacks) assert (con == CONFLICT || con == ASSUMPTIONS);
+  if (con == CONFLICT) assert (conclusion.size () == 1);
   LOG (conclusion, "LIDRUP TRACER tracing conclusion of clause(s)");
   lidrup_conclude_and_delete (conclusion);
 }
