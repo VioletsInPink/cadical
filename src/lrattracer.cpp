@@ -138,7 +138,7 @@ void LratTracer::add_derived_clause (int64_t id, bool, int,
     return;
   }
   LOG ("LRAT TRACER tracing addition of derived clause");
-  lrat_add_clause (id, redundant, clause, chain);
+  lrat_add_clause (id, clause, chain);
 #ifndef QUIET
   added++;
 #endif

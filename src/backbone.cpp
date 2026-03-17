@@ -403,8 +403,6 @@ unsigned Internal::compute_backbone_round (std::vector<int> &candidates,
     backbone_unit_assign (uip);
     ++stats.units;
     assert (!conflict);
-    if (external->learner)
-      external->export_learned_unit_clause (uip);
 
     backbone_propagate2 (ticks);
     if (conflict) {

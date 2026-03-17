@@ -67,7 +67,7 @@ static void traverse_one_sided_core_lemma (void *state, bool learned,
   vector<proof_clause> &proof_clauses = eliminator->proof_clauses;
   if (size) {
     proof_clause pc;
-    pc.id = ++(internal->clause_id);
+    pc.id = internal->next_lrat_id ();
     pc.literals.push_back (unit);
     const unsigned *end = lits + size;
     for (const unsigned *p = lits; p != end; p++)
@@ -121,7 +121,7 @@ static void traverse_one_sided_core_lemma_with_lrat (
     assert (chain_size);
     if (size) {
       proof_clause pc;
-      pc.id = ++(internal->clause_id);
+      pc.id = internal->next_lrat_id ();
       pc.cid = cid;
       pc.learned = true;
       pc.literals.push_back (unit);

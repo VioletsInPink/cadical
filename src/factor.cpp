@@ -609,7 +609,7 @@ void Internal::add_factored_divider (Quotient *q, int fresh) {
 void Internal::blocked_clause (Quotient *q, int not_fresh) {
   if (!proof)
     return;
-  int64_t new_id = ++clause_id;
+  int64_t new_id = next_lrat_id ();
   q->bid = new_id;
   assert (clause.empty ());
   clause.push_back (not_fresh);

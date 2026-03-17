@@ -234,7 +234,7 @@ void Proof::add_original_clause (int64_t id, bool r, const vector<int> &c) {
   add_original_clause ();
 }
 
-void Proof::add_original_ext_clause_with_signature (uint64_t id,
+void Proof::add_original_ext_clause_with_signature (int64_t id,
     const std::vector<int> & clause, const std::vector<uint8_t>& signature) {
   if (internal->opts.lrat && clause.size () == 1)
     internal->register_lrat_id_of_unit_elit (id, clause[0]);

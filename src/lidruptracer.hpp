@@ -2,17 +2,8 @@
 #define _lidruptracer_h_INCLUDED
 
 #include "file.hpp"
-<<<<<<< HEAD
 #include "onthefly_checking.hpp"
 #include "tracer.hpp"
-
-#include <vector>
-using namespace std;
-
-class FileTracer;
-=======
-#include "tracer.hpp"
->>>>>>> upstream/master
 
 namespace CaDiCaL {
 
@@ -48,7 +39,7 @@ class LidrupTracer : public FileTracer {
   LratCallbackImportClause cb_import;
   LratCallbackDeleteClauses cb_delete;
   LratCallbackConcludeUnsat cb_conclude;
-  vector<uint64_t> helpers_to_delete;
+  std::vector<uint64_t> helpers_to_delete;
 
   static const unsigned num_nonces = 4;
 
@@ -105,7 +96,7 @@ public:
   // proof section:
   void add_derived_clause (int64_t, bool, int, const std::vector<int> &,
                            const std::vector<int64_t> &) override;
-  void add_original_clause_with_signature (int64_t id, const vector<int> & clause, const vector<uint8_t>& signature) override;
+  void add_original_clause_with_signature (int64_t id, const std::vector<int> & clause, const std::vector<uint8_t>& signature) override;
   void add_assumption_clause (int64_t, const std::vector<int> &,
                               const std::vector<int64_t> &) override;
   void weaken_minus (int64_t, const std::vector<int> &) override;

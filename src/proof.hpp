@@ -53,30 +53,19 @@ public:
   Proof (Internal *);
   ~Proof ();
 
-<<<<<<< HEAD
   vector<Tracer *>& get_tracers () {return tracers;}
 
-  void connect (LratBuilder *lb) { lratbuilder = lb; }
-=======
->>>>>>> upstream/master
   void connect (Tracer *t) { tracers.push_back (t); }
   void disconnect (Tracer *t);
   // Add original clauses to the proof (for online proof checking).
   //
-<<<<<<< HEAD
-  void add_original_clause (uint64_t, bool, const vector<int> &);
-  void add_original_ext_clause_with_signature (uint64_t id,
-    const std::vector<int> & clause, const std::vector<uint8_t>& signature);
-  void add_assumption_clause (uint64_t, const vector<int> &,
-                              const vector<uint64_t> &);
-  void add_assumption_clause (uint64_t, int, const vector<uint64_t> &);
-=======
   void add_original_clause (int64_t, bool, const std::vector<int> &);
+  void add_original_ext_clause_with_signature (int64_t id,
+    const std::vector<int> & clause, const std::vector<uint8_t>& signature);
 
   void add_assumption_clause (int64_t, const std::vector<int> &,
                               const std::vector<int64_t> &);
   void add_assumption_clause (int64_t, int, const std::vector<int64_t> &);
->>>>>>> upstream/master
   void add_assumption (int);
   void add_constraint (const std::vector<int> &);
   void reset_assumptions ();

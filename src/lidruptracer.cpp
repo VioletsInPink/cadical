@@ -237,7 +237,7 @@ void LidrupTracer::lidrup_add_restored_clause (int64_t id) {
 }
 
 void LidrupTracer::add_original_clause_with_signature (int64_t id,
-    const vector<int> & clause, const std::vector<uint8_t>& signature) {
+    const std::vector<int> & clause, const std::vector<uint8_t>& signature) {
   lidrup_batch_weaken_restore_and_delete ();
   if (internal->is_locally_produced_lrat_id (id)) {
     printf("ERROR: Invalid imported ID %lu for solver %i out of %i!\n", id,
@@ -258,7 +258,8 @@ void LidrupTracer::lidrup_add_derived_clause (
         internal->opts.lratsolverid, internal->opts.lratsolvercount);
       abort();
     }
-    cb_produce (id, clause.data (), clause.size (), chain.data (), chain.size (), clause.size ());
+    // We can cast from int64_t to uint64_t here because we only use RUP steps.
+    cb_produce (id, clause.data (), clause.size (), (uint64_t*) chain.data (), chain.size (), clause.size ());
     return;
   }
   if (binary) {
@@ -341,7 +342,8 @@ void LidrupTracer::lidrup_batch_weaken_restore_and_delete () {
   }
   if (!batch_delete.empty ()) {
     if (callbacks) {
-      cb_delete (batch_delete.data (), batch_delete.size ());
+      // We can cast from int64_t to uint64_t here because we only use RUP steps.
+      cb_delete ((uint64_t*) batch_delete.data (), batch_delete.size ());
       batch_delete.clear ();
       return;
     }

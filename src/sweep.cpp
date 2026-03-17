@@ -585,7 +585,7 @@ void Internal::add_core (Sweeper &sweeper, unsigned core_idx) {
     assert (pc.learned);
 
     if (proof) {
-      pc.cad_id = ++clause_id;
+      pc.cad_id = next_lrat_id ();
       proof->add_derived_clause (pc.cad_id, true, pc.literals, lrat_chain);
       clear_lrat_chain ();
     }
@@ -913,7 +913,7 @@ int64_t Internal::add_sweep_binary (sweep_proof_clause pc, int lit,
   }
   clause.push_back (lit);
   clause.push_back (other);
-  const int64_t id = ++clause_id;
+  const int64_t id = next_lrat_id ();
   if (proof) {
     proof->add_derived_clause (id, false, clause, lrat_chain);
     proof->weaken_minus (id, clause);
@@ -1146,7 +1146,7 @@ void Internal::substitute_connected_clauses (Sweeper &sweeper, int lit,
       assert (c->size >= 2);
       if (!c->redundant)
         mark_removed (c);
-      uint64_t new_id = ++clause_id;
+      uint64_t new_id = next_lrat_id ();
       if (proof) {
         proof->add_derived_clause (new_id, c->redundant, clause,
                                    lrat_chain);

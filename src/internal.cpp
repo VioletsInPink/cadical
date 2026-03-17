@@ -249,7 +249,7 @@ void Internal::reserve_ids (int number) {
   clause_id = reserved_ids = number;
   // We need to align the clause ID at the correct remainder mod p (= #solvers),
   // with lratsolverid being in [0, p).
-  while (clause_id % opts.lratsolvercount != (unsigned long) opts.lratsolverid)
+  while (clause_id % opts.lratsolvercount != opts.lratsolverid)
     clause_id++;
   // If the provided options indicate that there are (possibly) X prior solvers
   // which were using the same solver ID for producing clauses, then add an according

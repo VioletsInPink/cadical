@@ -84,15 +84,15 @@ inline void PalRupTracer::put_binary_id (int64_t id) {
 // The following methods are taken and adapted from Michael Dörr's original PalRUP logging implementation,
 // integrated in his fork of ImpCheck: https://github.com/MichaelDoerr/impcheck
 
-uint64_t PalRupTracer::plrat_utils_add_offset(uint64_t* hints, int nb_hints) {
-    uint64_t max_hint_id = 1;
+int64_t PalRupTracer::plrat_utils_add_offset(int64_t* hints, int nb_hints) {
+    int64_t max_hint_id = 1;
 
     // look at hints and translate their id to id + offset
     for (int i = 0; i < nb_hints; ++i) {
-        uint64_t hint = hints[i];
+        int64_t hint = hints[i];
         auto it = id_offsets.find(hint);
         if (it != id_offsets.end()) {
-          uint64_t current_offset = it->second;
+          int64_t current_offset = it->second;
           hint += current_offset;
           assert(hint > 0);
           assert((long)current_offset >= 0);
@@ -108,11 +108,11 @@ uint64_t PalRupTracer::plrat_utils_add_offset(uint64_t* hints, int nb_hints) {
     return max_hint_id;
 }
 
-uint64_t PalRupTracer::plrat_utils_get_next_valid_id(const uint64_t old_id, uint64_t* hints, int nb_hints) {
+int64_t PalRupTracer::plrat_utils_get_next_valid_id(const int64_t old_id, int64_t* hints, int nb_hints) {
 
-    uint64_t local_offset = offset + solver_modulo_remainder;
-    uint64_t new_id = old_id + local_offset;
-    uint64_t max_hint_id = plrat_utils_add_offset(hints, nb_hints);
+    int64_t local_offset = offset + solver_modulo_remainder;
+    int64_t new_id = old_id + local_offset;
+    int64_t max_hint_id = plrat_utils_add_offset(hints, nb_hints);
 
     if (new_id > max_hint_id) {
         //plrat_utils_debug('a', old_id, new_id);
@@ -120,11 +120,11 @@ uint64_t PalRupTracer::plrat_utils_get_next_valid_id(const uint64_t old_id, uint
         return new_id;  // no new offset needed
     }
 
-    uint64_t new_offset = 1 + max_hint_id - old_id;
+    int64_t new_offset = 1 + max_hint_id - old_id;
     assert(new_offset + old_id > max_hint_id);
 
     // offsets have to be a multiple of nb_solvers
-    uint64_t temp_rank = (new_offset % nb_solvers);
+    int64_t temp_rank = (new_offset % nb_solvers);
     // (correct the rank) and do not add nb_solvers if temp_rank is 0
     new_offset += (nb_solvers - temp_rank) % nb_solvers;
 
@@ -148,15 +148,15 @@ uint64_t PalRupTracer::plrat_utils_get_next_valid_id(const uint64_t old_id, uint
 // trusted_utils_write_lrat_delete needs hints which are translated.
 // clauses that are deleted from the clause table, can be deleted from the offset table too.
 // to avoid temporary memory allocation, translating and deleting is done element wise in the same loop.
-void PalRupTracer::plrat_utils_translate_and_delete(uint64_t* hints, int nb_hints) {
+void PalRupTracer::plrat_utils_translate_and_delete(int64_t* hints, int nb_hints) {
     for (int i = 0; i < nb_hints; ++i) {
-        uint64_t original_id = hints[i];                                       // temp save id
+        int64_t original_id = hints[i];                                       // temp save id
         bool local = internal->is_locally_produced_lrat_id(original_id);
         //plrat_utils_debug('d', original_id, (uint64_t)current_offset);
         auto it = id_offsets.find(original_id);
         if (it != id_offsets.end()) {
-          uint64_t current_offset = it->second;  // translate id
-          hints[i] = original_id + (uint64_t)current_offset;
+          int64_t current_offset = it->second;  // translate id
+          hints[i] = original_id + (int64_t)current_offset;
           assert(local == internal->is_locally_produced_lrat_id(hints[i]));
           //plrat_utils_debug('D', original_id, hints[i]);
           id_offsets.erase(original_id);
@@ -172,9 +172,9 @@ void PalRupTracer::plrat_utils_translate_and_delete(uint64_t* hints, int nb_hint
 
 
 
-void PalRupTracer::lrat_add_clause (uint64_t id, bool,
+void PalRupTracer::lrat_add_clause (int64_t id, bool,
                                   const vector<int> &clause,
-                                  vector<uint64_t> &chain, bool imported) {
+                                  vector<int64_t> &chain, bool imported) {
 
   if (id <= internal->opts.lratorigclscount) {
     printf("ERROR - invalid (pre-adjusted) ID %lu (%i orig. clauses)!\n", id, internal->opts.lratorigclscount);
@@ -246,16 +246,16 @@ void PalRupTracer::lrat_add_clause (uint64_t id, bool,
     file->put ("0\n"); // this is just 2c here
 }
 
-void PalRupTracer::lrat_delete_clause (uint64_t id) {
+void PalRupTracer::lrat_delete_clause (int64_t id) {
   if (!internal->opts.lratdeletelines) return;
   delete_ids.push_back (id); // pushing off deletion for later
 }
 
 /*------------------------------------------------------------------------*/
 
-void PalRupTracer::add_derived_clause (uint64_t id, bool redundant,
+void PalRupTracer::add_derived_clause (int64_t id, bool redundant, int,
                                      const vector<int> &clause,
-                                     const vector<uint64_t> &chain) {
+                                     const vector<int64_t> &chain) {
   mtx_write.lock ();
   LOG ("LRAT TRACER tracing addition of derived clause");
   chain_copy.insert (chain_copy.end(), chain.begin(), chain.end());
@@ -267,7 +267,7 @@ void PalRupTracer::add_derived_clause (uint64_t id, bool redundant,
   mtx_write.unlock ();
 }
 
-void PalRupTracer::add_original_clause_with_signature (uint64_t id,
+void PalRupTracer::add_original_clause_with_signature (int64_t id,
     const vector<int> & clause, const std::vector<uint8_t>& signature) {
   if (internal->is_locally_produced_lrat_id (id)) {
     printf("ERROR: Invalid imported ID %lu for solver %i out of %i!\n", id,
@@ -281,7 +281,7 @@ void PalRupTracer::add_original_clause_with_signature (uint64_t id,
   mtx_write.unlock ();
 }
 
-void PalRupTracer::delete_clause (uint64_t id, bool, const vector<int> &) {
+void PalRupTracer::delete_clause (int64_t id, bool, const vector<int> &) {
   if (file->closed ())
     return;
   LOG ("LRAT TRACER tracing deletion of clause");
@@ -291,7 +291,7 @@ void PalRupTracer::delete_clause (uint64_t id, bool, const vector<int> &) {
 #endif
 }
 
-void PalRupTracer::begin_proof (uint64_t id) {
+void PalRupTracer::begin_proof (int64_t id) {
   if (file->closed ())
     return;
   LOG ("LRAT TRACER tracing begin of proof");

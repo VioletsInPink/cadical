@@ -1066,7 +1066,7 @@ Solver::Statistics Solver::get_stats () {
   s.propagations += internal->stats.propagations.search;
   s.propagations += internal->stats.propagations.transred;
   s.propagations += internal->stats.propagations.vivify;
-  s.propagations += internal->stats.propagations.walk;
+  s.propagations += internal->stats.propagations.backbone;
   s.restarts = internal->stats.restarts;
   s.imported = internal->stats.clauseimport.imported;
   s.discarded = internal->stats.clauseimport.discarded;

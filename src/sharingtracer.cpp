@@ -21,14 +21,14 @@ SharingTracer::~SharingTracer () {}
 
 /*------------------------------------------------------------------------*/
 
-void SharingTracer::add_derived_clause (uint64_t id, bool,
+void SharingTracer::add_derived_clause (int64_t id, bool, int,
                                        const vector<int> &clause,
-                                       const vector<uint64_t> &chain) {
+                                       const vector<int64_t> &chain) {
   if (internal->transformed_id) {
     id = internal->transformed_id;
     internal->transformed_id = 0;
   }
-  cb_produce (id, clause.data (), clause.size (), chain.data (), chain.size (), clause.size ());
+  cb_produce (id, clause.data (), clause.size (), (uint64_t*) chain.data (), chain.size (), clause.size ());
 }
 
 } // namespace CaDiCaL

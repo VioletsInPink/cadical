@@ -118,6 +118,26 @@ extern "C" {
 }
 /*------------------------------------------------------------------------*/
 
+
+// Replace the short definitions with the multi-line ones to get
+// comprehensive output on the locations where lrat_chain is manipulated,
+// written to a text file lratchain.<tid>.
+/*
+#define push_lrat_chain(ID) \
+{internal->dbg_file = __FILE__; \
+internal->dbg_line = __LINE__; \
+internal->do_push_lrat_chain(ID);};
+*/
+#define push_lrat_chain(ID) internal->lrat_chain.push_back (ID)
+/*
+#define clear_lrat_chain(...) \
+{internal->dbg_file = __FILE__; \
+internal->dbg_line = __LINE__; \
+internal->do_clear_lrat_chain();};
+*/
+#define clear_lrat_chain(...) internal->lrat_chain.clear ()
+
+
 namespace CaDiCaL {
 
 using namespace std;
@@ -1831,7 +1851,7 @@ struct Internal {
   inline uint64_t next_lrat_id () {
     clause_id += opts.lratsolvercount;
     assert(!lrat || creating_external_clause == !is_locally_produced_lrat_id(clause_id));
-    if (clause_id >= (~0UL - (1UL<<32) - (1UL<<31))) abort ();
+    if (clause_id >= (~0L - (1L<<32) - (1L<<31))) abort ();
     return clause_id;
   }
   bool is_locally_produced_lrat_id (uint64_t id) {
@@ -1874,24 +1894,6 @@ struct Internal {
     fprintf (out_lrat_chain, "%s:%i\n", dbg_file, dbg_line);
   }
 };
-
-// Replace the short definitions with the multi-line ones to get
-// comprehensive output on the locations where lrat_chain is manipulated,
-// written to a text file lratchain.<tid>.
-/*
-#define push_lrat_chain(ID) \
-{internal->dbg_file = __FILE__; \
-internal->dbg_line = __LINE__; \
-internal->do_push_lrat_chain(ID);};
-*/
-#define push_lrat_chain(ID) internal->lrat_chain.push_back (ID)
-/*
-#define clear_lrat_chain(...) \
-{internal->dbg_file = __FILE__; \
-internal->dbg_line = __LINE__; \
-internal->do_clear_lrat_chain();};
-*/
-#define clear_lrat_chain(...) internal->lrat_chain.clear ()
 
 // Fatal internal error which leads to abort.
 //

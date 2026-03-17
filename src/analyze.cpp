@@ -1222,6 +1222,7 @@ void Internal::analyze () {
     if (opts.bump) {
       bump_also_all_reason_literals ();
       bump_variables ();
+    }
   }
 
   // Update actual size statistics.

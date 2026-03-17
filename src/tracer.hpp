@@ -35,7 +35,7 @@ public:
   virtual void add_original_clause (int64_t, bool, const std::vector<int> &,
                                     bool = false) {}
 
-  virtual void add_original_clause_with_signature (uint64_t, const std::vector<int> &,
+  virtual void add_original_clause_with_signature (int64_t, const std::vector<int> &,
                                     const std::vector<uint8_t>&) {}
 
   // Notify the observer that a new clause has been derived.

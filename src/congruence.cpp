@@ -913,7 +913,7 @@ Clause *Closure::new_tmp_clause (std::vector<int> &clause) {
   Clause *c = (Clause *) new char[bytes];
   DeferDeleteArray<char> clause_delete ((char *) c);
 
-  c->id = ++internal->clause_id;
+  c->id = internal->next_lrat_id ();
 
   c->conditioned = false;
   c->covered = false;
@@ -3475,7 +3475,7 @@ void Closure::check_ternary (int a, int b, int c) {
   clause.push_back (c);
   internal->external->check_learned_clause ();
   if (internal->proof) {
-    const LRAT_ID id = ++internal->clause_id;
+    const LRAT_ID id = internal->next_lrat_id ();
     internal->proof->add_derived_clause (id, false, clause, {});
     internal->proof->delete_clause (id, false, clause);
   }
@@ -3597,7 +3597,7 @@ void Closure::check_xor_gate_implied (Gate const *const g) {
       inc_lits (clause);
     internal->external->check_learned_clause ();
     if (internal->proof) {
-      internal->proof->add_derived_clause (++internal->clause_id, false,
+      internal->proof->add_derived_clause (internal->next_lrat_id (), false,
                                            clause, {});
       internal->proof->delete_clause (internal->clause_id, false, clause);
     }
@@ -3700,7 +3700,7 @@ Gate *Closure::find_ite_gate (Gate *g, bool &negate_lhs) {
 
 LRAT_ID Closure::check_and_add_to_proof_chain (vector<int> &clause) {
   internal->external->check_learned_clause ();
-  const LRAT_ID id = ++internal->clause_id;
+  const LRAT_ID id = internal->next_lrat_id ();
   if (internal->proof) {
     if (internal->lrat) {
       assert (internal->lrat_chain.empty ());
