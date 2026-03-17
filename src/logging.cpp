@@ -66,8 +66,9 @@ void Logger::log (Internal *internal, const Clause *c, const char *fmt,
         for (const auto &lit : s)
           fprintf (internal->logfile, " %d", lit);
       } else {
-        for (const auto &lit : *c)
-          fprintf (internal->logfile, " %d", lit);
+        for (const auto &lit : *c) {
+          fprintf (internal->logfile, " %s", loglit (internal, lit).c_str ());
+        }
       }
     }
   } else if (internal->level)
@@ -77,6 +78,29 @@ void Logger::log (Internal *internal, const Clause *c, const char *fmt,
   fputc ('\n', internal->logfile);
   tout.normal ();
   fflush (internal->logfile);
+}
+
+void Logger::log (Internal *internal, const Gate *g, const char *fmt, ...) {
+  print_log_prefix (internal);
+  tout.magenta ();
+  va_list ap;
+  va_start (ap, fmt);
+  vprintf (fmt, ap);
+  va_end (ap);
+  if (g) {
+    printf ("%s%s gate[%" PRIu64 "] (arity: %zu) %s := %s",
+            special_gate_str (g->degenerated_gate).c_str (),
+            g->garbage ? " garbage" : "", g->id, g->arity (),
+            loglit (internal, g->lhs).c_str (),
+            string_of_gate (g->tag).c_str ());
+    for (const auto &lit : g->rhs) {
+      printf (" %s", loglit (internal, lit).c_str ());
+    }
+  } else
+    printf (" null gate");
+  fputc ('\n', stdout);
+  tout.normal ();
+  fflush (stdout);
 }
 
 // Same as above, but for the global clause 'c' (which is not a reason).
@@ -135,7 +159,7 @@ void Logger::log (Internal *internal,
 
 // for LRAT proof chains
 
-void Logger::log (Internal *internal, const vector<uint64_t> &c,
+void Logger::log (Internal *internal, const vector<int64_t> &c,
                   const char *fmt, ...) {
   print_log_prefix (internal);
   tout.magenta ();
@@ -144,12 +168,47 @@ void Logger::log (Internal *internal, const vector<uint64_t> &c,
   vfprintf (internal->logfile, fmt, ap);
   va_end (ap);
   for (const auto &id : c)
-    fprintf (internal->logfile, " %" PRIu64, id);
+    fprintf (internal->logfile, " %" PRId64, id);
   fputc ('\n', internal->logfile);
   tout.normal ();
   fflush (internal->logfile);
 }
 
+// for LRAT proof clauses
+
+void Logger::log (Internal *internal, const int *literals,
+                  const unsigned size, const char *fmt, ...) {
+  print_log_prefix (internal);
+  tout.magenta ();
+  va_list ap;
+  va_start (ap, fmt);
+  vprintf (fmt, ap);
+  va_end (ap);
+  for (unsigned i = 0; i < size; i++) {
+    const int lit = literals[i];
+    printf (" %d", lit);
+  }
+  fputc ('\n', stdout);
+  tout.normal ();
+  fflush (stdout);
+}
+
+string Logger::loglit (Internal *internal, int lit) {
+  std::string v = std::to_string (lit);
+  if (lit && -internal->max_var <= lit && internal->max_var >= lit) {
+    const int va = internal->val (lit);
+    if (va) {
+      v = v + "@" + std::to_string (internal->var (lit).level);
+      if (!internal->var (lit).reason)
+        v = v + "+";
+    }
+    if (va > 0)
+      v += "=1";
+    else if (va < 0)
+      v += "=-1";
+  }
+  return v;
+}
 } // namespace CaDiCaL
 
 #endif
