@@ -66,6 +66,9 @@ bool Internal::subsuming () {
   if (preprocessing)
     assert (lim.preprocessing);
 
+  if (opts.vivifyonly)
+    return true;
+
   // Only perform global subsumption checking immediately after a clause
   // reduction happened where the overall allocated memory is small and we
   // got a limit on the number of kept clause in terms of size and glue.
