@@ -119,6 +119,8 @@ OPTION( lratpalrup,        0,  0,  1,0,0,1, "output in PalRUP parallel proof for
 OPTION( lratskippedepochs, 0,  0,2e9,0,0,1, "skip this many blocks of potential ID domains") \
 OPTION( lratsolvercount,   1,  1,2e9,0,0,1, "number of solvers in the computation") \
 OPTION( lratsolverid,      0,  0,2e9,0,0,1, "internal ID of this particular solver") \
+OPTION( lrattypecount,     1,  0,2e9,0,0,1, "number of solvers of this type in the computation") \
+OPTION( lrattypeid,        0,  0,2e9,0,0,1, "denotes this as the n'th solver of this type") \
 OPTION( lucky,             1,  0,  1,0,0,1, "search for lucky phases") \
 OPTION( minimize,          1,  0,  1,0,0,1, "minimize learned clauses") \
 OPTION( minimizedepth,   1e3,  0,1e3,0,0,1, "minimization depth") \
