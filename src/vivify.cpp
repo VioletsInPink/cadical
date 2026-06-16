@@ -398,11 +398,9 @@ void Internal::flush_vivification_schedule (Vivifier &vivifier) {
 // to vivify them if they are likely to survive the next 'reduce' operation.
 
 uint64_t clause_hash(const Clause* c) {
-  uint64_t h = 0;
-
+  size_t h = 17;
   for (const auto &lit : *c)
-    h ^= (uint64_t)lit;
-
+    hash_combine(h, (size_t)lit);
   return h;
 }
 
