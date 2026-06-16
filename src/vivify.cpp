@@ -417,8 +417,8 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
     return false;
   if (c->redundant && !likely_to_be_kept_clause (c))
     return false;
-  if (opts.vivifyonly && clause_hash(c) % opts.lrattypecount != opts.lrattypeid)
-    return false;
+  if (opts.vivifyonly && (int) (clause_hash(c) % (uint64_t) opts.vivifyonlycount) != opts.vivifyonlyid)
+     return false;
   return true;
 }
 

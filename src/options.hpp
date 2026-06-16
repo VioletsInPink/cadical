@@ -119,8 +119,6 @@ OPTION( lratpalrup,        0,  0,  1,0,0,1, "output in PalRUP parallel proof for
 OPTION( lratskippedepochs, 0,  0,2e9,0,0,1, "skip this many blocks of potential ID domains") \
 OPTION( lratsolvercount,   1,  1,2e9,0,0,1, "number of solvers in the computation") \
 OPTION( lratsolverid,      0,  0,2e9,0,0,1, "internal ID of this particular solver") \
-OPTION( lrattypecount,     1,  0,2e9,0,0,1, "number of solvers of this type in the computation") \
-OPTION( lrattypeid,        0,  0,2e9,0,0,1, "denotes this as the n'th solver of this type") \
 OPTION( lucky,             1,  0,  1,0,0,1, "search for lucky phases") \
 OPTION( minimize,          1,  0,  1,0,0,1, "minimize learned clauses") \
 OPTION( minimizedepth,   1e3,  0,1e3,0,0,1, "minimization depth") \
@@ -202,6 +200,8 @@ OPTION( vivifymaxeff,    2e7,  0,2e9,1,0,1, "maximum efficiency") \
 OPTION( vivifymineff,    2e4,  0,2e9,1,0,1, "minimum efficiency") \
 OPTION( vivifyonce,        0,  0,  2,0,0,1, "vivify once: 1=red, 2=red+irr") \
 OPTION( vivifyonly,        0,  0,  1,0,1,1, "perform only vivification, no CDCL") \
+OPTION( vivifyonlycount,   1,  0,2e9,0,0,1, "number of solvers of this type in the computation") \
+OPTION( vivifyonlyid,      0,  0,2e9,0,0,1, "denotes this as the n'th solver of this type") \
 OPTION( vivifyredeff,     75,  0,1e3,1,0,1, "redundant efficiency per mille") \
 OPTION( vivifyreleff,     20,  1,1e5,1,0,1, "relative efficiency per mille") \
 OPTION( walk,              1,  0,  1,0,0,1, "enable random walks") \
