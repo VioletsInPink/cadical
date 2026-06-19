@@ -413,10 +413,10 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
     return false;
   if (opts.vivifyonce >= 2 && !c->redundant && c->vivified)
     return false;
+  if (opts.vivifyonly && (int) (clause_hash(c) % (uint64_t) opts.vivifyonlycount) == opts.vivifyonlyid)
+    return true; // erly exit, we don't care for likely clauses, no reduce is performed
   if (c->redundant && !likely_to_be_kept_clause (c))
     return false;
-  if (opts.vivifyonly && (int) (clause_hash(c) % (uint64_t) opts.vivifyonlycount) != opts.vivifyonlyid)
-     return false;
   return true;
 }
 
