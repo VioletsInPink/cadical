@@ -200,7 +200,7 @@ OPTION( vivifymaxeff,    2e7,  0,2e9,1,0,1, "maximum efficiency") \
 OPTION( vivifymineff,    2e4,  0,2e9,1,0,1, "minimum efficiency") \
 OPTION( vivifyonce,        0,  0,  2,0,0,1, "vivify once: 1=red, 2=red+irr") \
 OPTION( vivifyonly,        0,  0,  1,0,1,1, "perform only vivification, no CDCL") \
-OPTION( vivifyonlycount,   1,  0,2e9,0,0,1, "number of solvers of this type in the computation") \
+OPTION( vivifyonlycount,   1,  1,2e9,0,0,1, "number of solvers of this type in the computation") \
 OPTION( vivifyonlyid,      0,  0,2e9,0,0,1, "denotes this as the n'th solver of this type") \
 OPTION( vivifyredeff,     75,  0,1e3,1,0,1, "redundant efficiency per mille") \
 OPTION( vivifyreleff,     20,  1,1e5,1,0,1, "relative efficiency per mille") \
