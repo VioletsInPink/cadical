@@ -649,6 +649,14 @@ public:
   //
   bool set_long_option (const char *arg);
 
+  // This function sets the path for the log output.
+  // logging to stdout will be disabled 
+  //
+  //   require (CONFIGURING)
+  //   ensure (CONFIGURING)
+  //
+  void set_log_path (const char* logPath);
+
   // Determine whether 'name' is a valid configuration.
   //
   static bool is_valid_configuration (const char *);

@@ -514,6 +514,24 @@ bool Solver::set_long_option (const char *arg) {
   return res;
 }
 
+void Solver::set_log_path(const char* logpath) {
+  LOG_API_CALL_BEGIN("set", "log path");
+  REQUIRE_VALID_STATE();
+  REQUIRE(state() == CONFIGURING,
+          "can only set path for logging right after initialization");
+
+  if (internal->logfile) {
+    fclose(internal->logfile);
+  }
+
+  internal->logfile = fopen(logpath, "w");
+
+  REQUIRE(internal->logfile != nullptr,
+          "failed to open log file: %s", logpath);
+
+  LOG_API_CALL_END("set", "log path", true);
+}
+
 void Solver::optimize (int arg) {
   LOG_API_CALL_BEGIN ("optimize", arg);
   REQUIRE_VALID_STATE ();
