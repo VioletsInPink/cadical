@@ -1251,6 +1251,10 @@ void Internal::vivify_round (bool redundant_mode,
     Clause *c = vivifier.schedule.back (); // Next candidate.
     vivifier.schedule.pop_back ();
     vivify_clause (vivifier, c);
+    MSG ("[%.3f](%s) vivify clause with length (%d)\n",
+       solve_time(),
+       opts.vivifyonly ? "v" : "c",
+       c->size);
   }
 
   if (level)
@@ -1323,6 +1327,45 @@ void Internal::vivify_round (bool redundant_mode,
            "strengthened %" PRId64 " clauses %.02f%% of %" PRId64
            " checked",
            strengthened, percent (strengthened, checked), checked);
+
+
+#define PRT(FMT, ...) \
+  do { \
+    if (FMT[0] == ' ') \
+      break; \
+    MSG (FMT, __VA_ARGS__); \
+  } while (0)
+
+PRT ("[%.3f] vivify checked (%" PRId64
+       ") clauses %.02f%% of %" PRId64 " scheduled\n",
+       solve_time(),
+       checked,
+       percent(checked, scheduled),
+       scheduled);
+
+if (units)
+    PRT ("[%.3f] vivify found (%" PRId64
+           ") units %.02f%% of %" PRId64 " checked\n",
+           solve_time(),
+           units,
+           percent(units, checked),
+           checked);
+
+if (subsumed)
+    PRT ("[%.3f] vivify subsumed (%" PRId64
+           ") clauses %.02f%% of %" PRId64 " checked\n",
+           solve_time(),
+           subsumed,
+           percent(subsumed, checked),
+           checked);
+
+if (strengthened)
+    PRT ("[%.3f] vivify strengthened (%" PRId64
+           ") clauses %.02f%% of %" PRId64 " checked\n",
+           solve_time(),
+           strengthened,
+           percent(strengthened, checked),
+           checked);
 
   stats.subsumed += subsumed;
   stats.strengthened += strengthened;
