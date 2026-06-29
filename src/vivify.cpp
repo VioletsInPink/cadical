@@ -1336,32 +1336,36 @@ void Internal::vivify_round (bool redundant_mode,
     MSG (FMT, __VA_ARGS__); \
   } while (0)
 
-PRT ("[%.3f] vivify checked (%" PRId64
+PRT ("(%s)[%.3f] vivify checked (%" PRId64
        ") clauses %.02f%% of %" PRId64 " scheduled\n",
+       opts.vivifyonly ? "v" : "c",
        solve_time(),
        checked,
        percent(checked, scheduled),
        scheduled);
 
 if (units)
-    PRT ("[%.3f] vivify found (%" PRId64
+    PRT ("(%s)[%.3f] vivify found (%" PRId64
            ") units %.02f%% of %" PRId64 " checked\n",
+           opts.vivifyonly ? "v" : "c",
            solve_time(),
            units,
            percent(units, checked),
            checked);
 
 if (subsumed)
-    PRT ("[%.3f] vivify subsumed (%" PRId64
+    PRT ("(%s)[%.3f] vivify subsumed (%" PRId64
            ") clauses %.02f%% of %" PRId64 " checked\n",
+           opts.vivifyonly ? "v" : "c",
            solve_time(),
            subsumed,
            percent(subsumed, checked),
            checked);
 
 if (strengthened)
-    PRT ("[%.3f] vivify strengthened (%" PRId64
+    PRT ("(%s)[%.3f] vivify strengthened (%" PRId64
            ") clauses %.02f%% of %" PRId64 " checked\n",
+           opts.vivifyonly ? "v" : "c",
            solve_time(),
            strengthened,
            percent(strengthened, checked),
