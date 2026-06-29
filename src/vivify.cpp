@@ -1250,7 +1250,16 @@ void Internal::vivify_round (bool redundant_mode,
          !vivifier.schedule.empty () && stats.propagations.vivify < limit) {
     Clause *c = vivifier.schedule.back (); // Next candidate.
     vivifier.schedule.pop_back ();
+
+    int strs = stats.vivifystrs;
+    int subs = stats.vivifysubs;
+    int units = stats.vivifyunits;
+
     vivify_clause (vivifier, c);
+
+    if (strs != stats.vivifystrs
+     || subs != stats.vivifysubs
+     || units != stats.vivifyunits)
     MSG ("[%.3f](%s) vivify clause with length (%d)\n",
        solve_time(),
        opts.vivifyonly ? "v" : "c",
