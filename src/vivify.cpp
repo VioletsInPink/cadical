@@ -1260,7 +1260,7 @@ void Internal::vivify_round (bool redundant_mode,
     if (strs != stats.vivifystrs
      || subs != stats.vivifysubs
      || units != stats.vivifyunits)
-    MSG ("[%.3f](%s) vivify clause with length (%d)\n",
+    MSG ("[%.3f](%s) vivify clause len (%d)",
        solve_time(),
        opts.vivifyonly ? "v" : "c",
        c->size);
@@ -1337,48 +1337,32 @@ void Internal::vivify_round (bool redundant_mode,
            " checked",
            strengthened, percent (strengthened, checked), checked);
 
-
-#define PRT(FMT, ...) \
-  do { \
-    if (FMT[0] == ' ') \
-      break; \
-    MSG (FMT, __VA_ARGS__); \
-  } while (0)
-
-PRT ("(%s)[%.3f] vivify checked (%" PRId64
-       ") clauses %.02f%% of %" PRId64 " scheduled\n",
+MSG ("(%s)[%.3f] vivify checked (%" PRId64
+       ")",
        opts.vivifyonly ? "v" : "c",
        solve_time(),
-       checked,
-       percent(checked, scheduled),
-       scheduled);
+       checked);
 
 if (units)
-    PRT ("(%s)[%.3f] vivify found (%" PRId64
-           ") units %.02f%% of %" PRId64 " checked\n",
+    MSG ("(%s)[%.3f] vivify found (%" PRId64
+           ")",
            opts.vivifyonly ? "v" : "c",
            solve_time(),
-           units,
-           percent(units, checked),
-           checked);
+           units);
 
 if (subsumed)
-    PRT ("(%s)[%.3f] vivify subsumed (%" PRId64
-           ") clauses %.02f%% of %" PRId64 " checked\n",
+    MSG ("(%s)[%.3f] vivify subsumed (%" PRId64
+           ")",
            opts.vivifyonly ? "v" : "c",
            solve_time(),
-           subsumed,
-           percent(subsumed, checked),
-           checked);
+           subsumed);
 
 if (strengthened)
-    PRT ("(%s)[%.3f] vivify strengthened (%" PRId64
-           ") clauses %.02f%% of %" PRId64 " checked\n",
+    MSG ("(%s)[%.3f] vivify strengthened (%" PRId64
+           ")",
            opts.vivifyonly ? "v" : "c",
            solve_time(),
-           strengthened,
-           percent(strengthened, checked),
-           checked);
+           strengthened);
 
   stats.subsumed += subsumed;
   stats.strengthened += strengthened;
