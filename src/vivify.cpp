@@ -401,6 +401,13 @@ size_t clause_hash(const Clause* c) {
   size_t h = 17;
   for (const auto &lit : *c)
     hash_combine(h, lit);
+
+  // mixing for lower bit distribution
+  h ^= h >> 30;
+  h *= 0xbf58476d1ce4e5b9ULL;
+  h ^= h >> 27;
+  h *= 0x94d049bb133111ebULL;
+  h ^= h >> 31;
   return h;
 }
 
