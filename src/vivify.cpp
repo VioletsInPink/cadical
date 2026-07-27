@@ -422,6 +422,8 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
     return false;
   if (opts.vivifyonly && clause_hash(c) % opts.vivifyonlycount == static_cast<size_t>(opts.vivifyonlyid))
     return true; // early exit, we don't care for likely clauses, no reduce is performed
+  else 
+    return false;
   if (c->redundant && !likely_to_be_kept_clause (c))
     return false;
   return true;
