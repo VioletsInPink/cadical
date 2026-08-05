@@ -430,6 +430,9 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
     else 
       return false;
   }
+
+  if (clause_hash(c) % opts.lratsolvercount != static_cast<size_t>(opts.lratsolverid))
+    return false;
   if (c->redundant && !likely_to_be_kept_clause (c))
     return false;
 
