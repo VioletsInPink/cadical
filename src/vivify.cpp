@@ -420,6 +420,8 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
     return false;
   if (opts.vivifyonce >= 2 && !c->redundant && c->vivified)
     return false;
+
+  // handle distribution for vivify only
   if (opts.vivifyonly) {
     if (clause_hash(c) % opts.vivifyonlycount == static_cast<size_t>(opts.vivifyonlyid)) {
       if (c->size > 60) {
@@ -431,7 +433,7 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
       return false;
   }
 
-  if (clause_hash(c) % opts.lratsolvercount != static_cast<size_t>(opts.lratsolverid))
+  if (clause_hash(c) % opts.vivifyonlycount != static_cast<size_t>(opts.vivifyonlyid))
     return false;
   if (c->redundant && !likely_to_be_kept_clause (c))
     return false;
