@@ -491,6 +491,8 @@ void Stats::print (Internal *internal) {
          stats.vivifyinst, percent (stats.vivifyinst, stats.vivifychecks));
     PRT ("  vivifysubs:    %15" PRId64 "   %10.2f %%  per subsumed",
          stats.vivifysubs, percent (stats.vivifysubs, stats.subsumed));
+    PRT ("  vivifysubasymtaut:    %15" PRId64 "   %10.2f %%  per subsumed",
+         stats.vivifysubsasymtaut, percent (stats.vvivifysubsasymtaut, stats.subsumed));
     PRT ("  vivifystrs:    %15" PRId64 "   %10.2f %%  per strengthened",
          stats.vivifystrs, percent (stats.vivifystrs, stats.strengthened));
     PRT ("  vivifystrirr:  %15" PRId64 "   %10.2f %%  per vivifystrs",

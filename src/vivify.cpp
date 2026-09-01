@@ -992,6 +992,7 @@ void Internal::vivify_clause (Vivifier &vivifier, Clause *c) {
     } else {
 
       stats.vivifysubs++;
+      stats.vivifysubsasymtaut++;
       LOG (c, "redundant asymmetric tautology");
       mark_garbage (c);
     }
