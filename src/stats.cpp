@@ -476,6 +476,8 @@ void Stats::print (Internal *internal) {
   if (all || vivified) {
     PRT ("vivified:        %15" PRId64 "   %10.2f %%  of all clauses",
          vivified, percent (vivified, stats.added.total));
+    PRT ("  vivified over limit:        %15" PRId64 "   %10.2f %%  of all vivified",
+         stats.vivifyoverclausesizelimit, percent (stats.vivifyoverclausesizelimit, vivified));
     PRT ("  vivifications: %15" PRId64 "   %10.2f    interval",
          stats.vivifications,
          relative (stats.conflicts, stats.vivifications));
@@ -492,7 +494,7 @@ void Stats::print (Internal *internal) {
     PRT ("  vivifysubs:    %15" PRId64 "   %10.2f %%  per subsumed",
          stats.vivifysubs, percent (stats.vivifysubs, stats.subsumed));
     PRT ("  vivifysubasymtaut:    %15" PRId64 "   %10.2f %%  per subsumed",
-         stats.vivifysubsasymtaut, percent (stats.vvivifysubsasymtaut, stats.subsumed));
+         stats.vivifysubsasymtaut, percent (stats.vivifysubsasymtaut, stats.subsumed));
     PRT ("  vivifystrs:    %15" PRId64 "   %10.2f %%  per strengthened",
          stats.vivifystrs, percent (stats.vivifystrs, stats.strengthened));
     PRT ("  vivifystrirr:  %15" PRId64 "   %10.2f %%  per vivifystrs",

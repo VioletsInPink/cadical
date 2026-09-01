@@ -188,6 +188,7 @@ struct Stats {
   int64_t vivifysched;    // scheduled clauses for vivification
   int64_t vivifysubs;     // subsumed clauses during vivification
   int64_t vivifysubsasymtaut; // subsumed clauses that where an asymmetric tautologies
+  int64_t vivifyoverclausesizelimit; 
   int64_t vivifystrs;     // strengthened clauses during vivification
   int64_t vivifystrirr;   // strengthened irredundant clause
   int64_t vivifystred1;   // strengthened redundant clause (1)

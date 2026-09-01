@@ -421,13 +421,21 @@ bool Internal::consider_to_vivify_clause (Clause *c, bool redundant_mode) {
   if (opts.vivifyonce >= 2 && !c->redundant && c->vivified)
     return false;
   if (opts.vivifyonly) {
-    if (clause_hash(c) % opts.vivifyonlycount == static_cast<size_t>(opts.vivifyonlyid))
+    if (clause_hash(c) % opts.vivifyonlycount == static_cast<size_t>(opts.vivifyonlyid)) {
+      if (c->size > 60) {
+        stats.vivifyoverclausesizelimit++;
+      }
       return true; // early exit, we don't care for likely clauses, no reduce is performed
+    }
     else 
       return false;
   }
   if (c->redundant && !likely_to_be_kept_clause (c))
     return false;
+
+  if (c->size > 60) {
+    stats.vivifyoverclausesizelimit++;
+  }
   return true;
 }
 
